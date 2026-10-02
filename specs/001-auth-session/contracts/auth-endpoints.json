@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Authentication API Contracts",
+  "description": "API contracts for FEAT-01: Authentication & Session Lifecycle",
+  "baseUrl": "https://todoapp-api-gudhgje6bvfqg3ev.centralus-01.azurewebsites.net",
+  "endpoints": {
+    "register": {
+      "method": "POST",
+      "path": "/api/Auth/register",
+      "auth": "Public",
+      "rateLimit": "3/min",
+      "request": {
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["email", "password"],
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "password": { "type": "string", "minLength": 8 }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Registration successful",
+          "schema": { "$ref": "#/definitions/AuthResponse" }
+        },
+        "400": {
+          "description": "Validation error (RFC 7807)",
+          "schema": { "$ref": "#/definitions/ProblemDetails" }
+        },
+        "409": {
+          "description": "Duplicate email conflict",
+          "schema": { "$ref": "#/definitions/ProblemDetails" }
+        },
+        "429": {
+          "description": "Rate limit exceeded"
+        }
+      }
+    },
+    "login": {
+      "method": "POST",
+      "path": "/api/Auth/login",
+      "auth": "Public",
+      "rateLimit": "5/min",
+      "request": {
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["email", "password"],
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "password": { "type": "string" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Standard login success OR 2FA challenge",
+          "schema": { "$ref": "#/definitions/AuthResponse" }
+        },
+        "400": {
+          "description": "Invalid credentials or validation failure",
+          "schema": { "$ref": "#/definitions/ProblemDetails" }
+        },
+        "429": {
+          "description": "Rate limit exceeded"
+        }
+      }
+    },
+    "login2fa": {
+      "method": "POST",
+      "path": "/api/Auth/login-2fa",
+      "auth": "Public",
+      "request": {
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["twoFactorToken", "code"],
+          "properties": {
+            "twoFactorToken": { "type": "string" },
+            "code": { "type": "string", "pattern": "^[0-9]{6}$" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "2FA verification successful",
+          "schema": { "$ref": "#/definitions/AuthResponse" }
+        },
+        "400": {
+          "description": "Invalid 2FA code or expired temporary token",
+          "schema": { "$ref": "#/definitions/ProblemDetails" }
+        }
+      }
+    },
+    "refresh": {
+      "method": "POST",
+      "path": "/api/Auth/refresh",
+      "auth": "Public",
+      "request": {
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["refreshToken"],
+          "properties": {
+            "refreshToken": { "type": "string" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Token refreshed; old refresh token revoked",
+          "schema": { "$ref": "#/definitions/AuthResponse" }
+        },
+        "401": {
+          "description": "Revoked, invalid, or expired refresh token"
+        }
+      }
+    },
+    "logout": {
+      "method": "POST",
+      "path": "/api/Auth/logout",
+      "auth": "Public (token optional)",
+      "request": {
+        "contentType": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["refreshToken"],
+          "properties": {
+            "refreshToken": { "type": "string" }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "Successfully logged out; refresh token revoked"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "userId": { "type": ["string", "null"], "format": "uuid" },
+        "email": { "type": ["string", "null"], "format": "email" },
+        "token": { "type": ["string", "null"] },
+        "refreshToken": { "type": ["string", "null"] },
+        "requiresTwoFactor": { "type": "boolean" },
+        "twoFactorToken": { "type": ["string", "null"] }
+      },
+      "required": ["requiresTwoFactor"]
+    },
+    "ProblemDetails": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "type": "integer" },
+        "detail": { "type": "string" },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "required": ["title", "status"]
+    }
+  }
+}
