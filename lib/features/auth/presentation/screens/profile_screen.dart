@@ -29,7 +29,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showChangePasswordModal(BuildContext context) {
-    context.read<ChangePasswordCubit>().reset();
+    final changePasswordCubit = context.read<ChangePasswordCubit>();
+    changePasswordCubit.reset();
 
     showModalBottomSheet(
       context: context,
@@ -38,14 +39,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (bottomSheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: BlocConsumer<ChangePasswordCubit, ChangePasswordState>(
+        return BlocProvider.value(
+          value: changePasswordCubit,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20,
+              left: 20,
+              right: 20,
+              top: 20,
+            ),
+            child: BlocConsumer<ChangePasswordCubit, ChangePasswordState>(
             listener: (context, state) {
               if (state.errorMessage != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -138,10 +141,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   void _showDeleteAccountDialog(BuildContext context, ProfileCubit profileCubit) {
     final TextEditingController passwordController = TextEditingController();
