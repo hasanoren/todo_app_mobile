@@ -71,4 +71,4 @@
 
 - [x] T020 Run `flutter analyze` to verify zero static analysis errors or warnings
 - [x] T021 Run `flutter test` to ensure existing unit tests pass
-- [ ] T022 Test full profile, password change, and account deletion lifecycle on device per `specs/004-user-profile-account/quickstart.md`
+- [x] T022 Test full profile, password change, and account deletion lifecycle on device per `specs/004-user-profile-account/quickstart.md`
