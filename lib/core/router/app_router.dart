@@ -33,6 +33,16 @@ class AppRouter {
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
     redirect: (BuildContext context, GoRouterState state) {
       final authState = authBloc.state;
+      debugPrint('GoRouter redirect -> URI: ${state.uri}, host: "${state.uri.host}", path: "${state.uri.path}", matchedLocation: "${state.matchedLocation}"');
+
+      // Handle custom scheme deep links like todoapp://reset-password?token=...
+      if (state.uri.host == 'reset-password' &&
+          state.matchedLocation != RouteNames.resetPassword) {
+        final query = state.uri.query;
+        return query.isNotEmpty
+            ? '${RouteNames.resetPassword}?$query'
+            : RouteNames.resetPassword;
+      }
 
       final bool isGoingToLogin = state.matchedLocation == RouteNames.login;
       final bool isGoingToRegister =
@@ -74,8 +84,7 @@ class AppRouter {
         if (isGoingToLogin ||
             isGoingToRegister ||
             isGoingTo2FA ||
-            isGoingToForgotPassword ||
-            isGoingToResetPassword) {
+            isGoingToForgotPassword) {
           return RouteNames.home;
         }
       }
