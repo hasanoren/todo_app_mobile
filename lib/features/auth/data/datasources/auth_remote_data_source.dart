@@ -15,6 +15,8 @@ import '../models/two_factor_enable_response_dto.dart';
 import '../models/two_factor_verify_request.dart';
 import '../models/two_factor_disable_request.dart';
 import '../models/user_profile_response_dto.dart';
+import '../models/change_password_request.dart';
+import '../models/delete_account_request.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponseDto> register(RegisterRequest request);
@@ -28,6 +30,8 @@ abstract class AuthRemoteDataSource {
   Future<TwoFactorEnableResponseDto> enable2fa();
   Future<AuthMessageResponseDto> verify2fa(TwoFactorVerifyRequest request);
   Future<AuthMessageResponseDto> disable2fa(TwoFactorDisableRequest request);
+  Future<void> changePassword(ChangePasswordRequest request);
+  Future<void> deleteAccount(DeleteAccountRequest request);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -285,6 +289,52 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
       return AuthMessageResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<void> changePassword(ChangePasswordRequest request) async {
+    try {
+      await _dio.put(
+        ApiConstants.changePassword,
+        data: request.toJson(),
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<void> deleteAccount(DeleteAccountRequest request) async {
+    try {
+      await _dio.delete(
+        ApiConstants.userMe,
+        data: request.toJson(),
+      );
     } on DioException catch (e) {
       if (e.response != null) {
         throw ApiException.fromJson(

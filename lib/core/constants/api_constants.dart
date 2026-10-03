@@ -13,6 +13,7 @@ class ApiConstants {
   static const String enable2fa = '/api/Auth/2fa/enable';
   static const String verify2fa = '/api/Auth/2fa/verify';
   static const String disable2fa = '/api/Auth/2fa/disable';
+  static const String changePassword = '/api/Auth/change-password';
 
   // User Endpoints
   static const String userMe = '/api/Users/me';

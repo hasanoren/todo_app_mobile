@@ -27,4 +27,10 @@ abstract class AuthRepository {
   Future<String> verifyTwoFactor(String code);
 
   Future<String> disableTwoFactor(String code);
+
+  Future<dynamic> getProfile();
+
+  Future<void> changePassword(String currentPassword, String newPassword);
+
+  Future<void> deleteAccount(String password);
 }

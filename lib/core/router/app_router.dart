@@ -18,12 +18,15 @@ import '../../features/auth/presentation/screens/login_2fa_screen.dart';
 import '../../features/auth/presentation/screens/two_factor_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
+import '../../features/auth/presentation/screens/profile_screen.dart';
 
 // Cubits
 import '../../features/auth/presentation/cubits/login_2fa_cubit.dart';
 import '../../features/auth/presentation/cubits/two_factor_cubit.dart';
 import '../../features/auth/presentation/cubits/forgot_password_cubit.dart';
 import '../../features/auth/presentation/cubits/reset_password_cubit.dart';
+import '../../features/auth/presentation/cubits/profile_cubit.dart';
+import '../../features/auth/presentation/cubits/change_password_cubit.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -102,6 +105,13 @@ class AppRouter {
             title: const Text('Ana Ekran'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.account_circle_outlined),
+                tooltip: 'Profil & Hesap',
+                onPressed: () {
+                  context.push(RouteNames.profile);
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.shield_outlined),
                 tooltip: 'İki Faktörlü Doğrulama (2FA)',
                 onPressed: () {
@@ -118,6 +128,16 @@ class AppRouter {
             ],
           ),
           body: const Center(child: Text('Todo Uygulaması Ana Ekranı (Dummy)')),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.profile,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => ProfileCubit(authRepository)),
+            BlocProvider(create: (_) => ChangePasswordCubit(authRepository)),
+          ],
+          child: const ProfileScreen(),
         ),
       ),
       GoRoute(

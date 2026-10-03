@@ -12,6 +12,9 @@ import '../models/reset_password_request.dart';
 import '../models/two_factor_verify_request.dart';
 import '../models/two_factor_disable_request.dart';
 import '../models/two_factor_enable_response_dto.dart';
+import '../models/user_profile_response_dto.dart';
+import '../models/change_password_request.dart';
+import '../models/delete_account_request.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
@@ -254,6 +257,46 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = TwoFactorDisableRequest(code: code);
       final response = await _remoteDataSource.disable2fa(request);
       return response.message;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<UserProfileResponseDto> getProfile() async {
+    try {
+      final profile = await _remoteDataSource.getProfile();
+      return profile;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    try {
+      final request = ChangePasswordRequest(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      await _remoteDataSource.changePassword(request);
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<void> deleteAccount(String password) async {
+    try {
+      final request = DeleteAccountRequest(password: password);
+      await _remoteDataSource.deleteAccount(request);
+      await _secureStorage.clearAuthData();
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (e) {

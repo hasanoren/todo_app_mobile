@@ -6,4 +6,5 @@ class RouteNames {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String twoFactorSettings = '/two-factor-settings';
+  static const String profile = '/profile';
 }
