@@ -77,4 +77,4 @@
 **Purpose**: End-to-end testing, error handling, and lint verification.
 
 - [x] T027 Run `flutter analyze` to verify zero static analysis errors or warnings
-- [ ] T028 Test full 2FA lifecycle on physical device or emulator per `specs/003-two-factor-auth/quickstart.md`
+- [x] T028 Test full 2FA lifecycle on physical device or emulator per `specs/003-two-factor-auth/quickstart.md`
