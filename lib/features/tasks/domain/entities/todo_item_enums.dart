@@ -1,8 +1,8 @@
 enum TaskPriority {
-  low(0, 'Low', 'Düşük'),
-  medium(1, 'Medium', 'Orta'),
-  high(2, 'High', 'Yüksek'),
-  urgent(3, 'Urgent', 'Acil');
+  low(1, 'Low', 'Düşük'),
+  medium(2, 'Medium', 'Orta'),
+  high(3, 'High', 'Yüksek'),
+  urgent(4, 'Urgent', 'Acil');
 
   final int value;
   final String apiName;
@@ -21,16 +21,18 @@ enum TaskPriority {
     final str = raw.toString().trim().toLowerCase();
     switch (str) {
       case 'low':
+      case '1':
       case '0':
         return TaskPriority.low;
-      case 'high':
+      case 'medium':
       case '2':
+        return TaskPriority.medium;
+      case 'high':
+      case '3':
         return TaskPriority.high;
       case 'urgent':
-      case '3':
+      case '4':
         return TaskPriority.urgent;
-      case 'medium':
-      case '1':
       default:
         return TaskPriority.medium;
     }
