@@ -7,3 +7,4 @@ abstract class TodoListsRepository {
   Future<TodoListResponseDto> updateTodoList(String id, String name, String? colorCode);
   Future<void> deleteTodoList(String id);
 }
+

@@ -15,7 +15,10 @@ class ColorUtils {
     Color(0xFF64748B), // Slate
   ];
 
-  static Color fromHex(String? hexString, {Color defaultColor = defaultListColor}) {
+  static Color fromHex(
+    String? hexString, {
+    Color defaultColor = defaultListColor,
+  }) {
     if (hexString == null || hexString.trim().isEmpty) {
       return defaultColor;
     }

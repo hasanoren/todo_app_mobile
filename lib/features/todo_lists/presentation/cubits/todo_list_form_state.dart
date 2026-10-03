@@ -56,3 +56,4 @@ class TodoListFormState extends Equatable {
         errorMessage,
       ];
 }
+

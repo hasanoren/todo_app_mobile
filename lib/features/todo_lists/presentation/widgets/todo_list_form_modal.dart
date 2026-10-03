@@ -75,9 +75,8 @@ class TodoListFormModal extends StatelessWidget {
                 children: [
                   Text(
                     state.isEdit ? 'Listeyi Düzenle' : 'Yeni Görev Listesi',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -89,7 +88,10 @@ class TodoListFormModal extends StatelessWidget {
 
               // Preview Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: listColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
@@ -97,10 +99,7 @@ class TodoListFormModal extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 12,
-                      backgroundColor: listColor,
-                    ),
+                    CircleAvatar(radius: 12, backgroundColor: listColor),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -141,9 +140,8 @@ class TodoListFormModal extends StatelessWidget {
               // Color Picker Section
               Text(
                 'Liste Rengi',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               ColorPickerGrid(

@@ -64,3 +64,4 @@ class TodoListResponseDto extends Equatable {
   @override
   List<Object?> get props => [id, name, colorCode, ownerId, createdAt, updatedAt];
 }
+

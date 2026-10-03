@@ -22,7 +22,10 @@ class FakeTodoListsRepository implements TodoListsRepository {
   }
 
   @override
-  Future<TodoListResponseDto> createTodoList(String name, String? colorCode) async {
+  Future<TodoListResponseDto> createTodoList(
+    String name,
+    String? colorCode,
+  ) async {
     if (shouldFail) throw const ServerFailure(message: 'Liste oluşturulamadı');
     final newList = TodoListResponseDto(
       id: 'id-${lists.length + 1}',

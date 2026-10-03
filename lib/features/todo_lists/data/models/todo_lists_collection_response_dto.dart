@@ -27,3 +27,4 @@ class TodoListsCollectionResponseDto {
     return const TodoListsCollectionResponseDto(items: []);
   }
 }
+
