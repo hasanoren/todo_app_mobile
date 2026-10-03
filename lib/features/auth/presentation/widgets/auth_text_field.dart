@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-class AuthTextField extends StatelessWidget {
+class AuthTextField extends StatefulWidget {
   final String label;
   final String? errorText;
   final bool obscureText;
+  final bool isPassword;
   final ValueChanged<String>? onChanged;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
@@ -15,6 +16,7 @@ class AuthTextField extends StatelessWidget {
     required this.label,
     this.errorText,
     this.obscureText = false,
+    this.isPassword = false,
     this.onChanged,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
@@ -23,18 +25,49 @@ class AuthTextField extends StatelessWidget {
   });
 
   @override
+  State<AuthTextField> createState() => _AuthTextFieldState();
+}
+
+class _AuthTextFieldState extends State<AuthTextField> {
+  late bool _obscured;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscured = widget.isPassword || widget.obscureText;
+  }
+
+  bool get _isPasswordField => widget.isPassword || widget.obscureText;
+
+  @override
   Widget build(BuildContext context) {
+    Widget? effectiveSuffixIcon = widget.suffixIcon;
+    if (_isPasswordField && effectiveSuffixIcon == null) {
+      effectiveSuffixIcon = IconButton(
+        icon: Icon(
+          _obscured ? Icons.visibility_off : Icons.visibility,
+          color: Theme.of(context).colorScheme.outline,
+        ),
+        tooltip: _obscured ? 'Şifreyi Göster' : 'Şifreyi Gizle',
+        onPressed: () {
+          setState(() {
+            _obscured = !_obscured;
+          });
+        },
+      );
+    }
+
     return TextField(
-      controller: controller,
-      onChanged: onChanged,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      obscureText: _isPasswordField ? _obscured : widget.obscureText,
+      keyboardType: widget.keyboardType,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        errorText: errorText,
+        labelText: widget.label,
+        hintText: widget.hintText,
+        errorText: widget.errorText,
         border: const OutlineInputBorder(),
-        suffixIcon: suffixIcon,
+        suffixIcon: effectiveSuffixIcon,
       ),
     );
   }

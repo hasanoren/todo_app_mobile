@@ -189,13 +189,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  AuthTextField(
+                    label: 'Şifreniz',
                     controller: passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Şifreniz',
-                      border: OutlineInputBorder(),
-                    ),
                   ),
                 ],
               ),
