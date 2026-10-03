@@ -74,4 +74,5 @@
 - [x] T022 Write unit tests for `TodoListsCubit` and `TodoListFormCubit` in `test/features/todo_lists/todo_lists_test.dart`
 - [x] T023 Run `flutter analyze` to ensure 0 static analysis errors or warnings
 - [x] T024 Run `flutter test` to ensure all tests pass
-- [ ] T025 Build and verify on Samsung Galaxy A71 device per `specs/005-todo-lists/quickstart.md`
+- [x] T025 Build and verify on Samsung Galaxy A71 device per `specs/005-todo-lists/quickstart.md`
+
