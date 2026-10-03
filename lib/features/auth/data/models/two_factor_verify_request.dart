@@ -5,3 +5,4 @@ class TwoFactorVerifyRequest {
 
   Map<String, dynamic> toJson() => {'code': code};
 }
+

@@ -19,3 +19,4 @@ class TwoFactorEnableResponseDto {
         'qrCodeUri': qrCodeUri,
       };
 }
+

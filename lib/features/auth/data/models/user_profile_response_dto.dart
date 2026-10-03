@@ -27,3 +27,4 @@ class UserProfileResponseDto {
         'isTwoFactorEnabled': isTwoFactorEnabled,
       };
 }
+

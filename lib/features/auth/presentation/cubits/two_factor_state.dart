@@ -57,3 +57,4 @@ class TwoFactorState extends Equatable {
         isSetupVisible,
       ];
 }
+

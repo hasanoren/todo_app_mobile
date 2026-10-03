@@ -54,3 +54,4 @@ class Login2faFailure extends Login2faState {
     super.generalError,
   });
 }
+
