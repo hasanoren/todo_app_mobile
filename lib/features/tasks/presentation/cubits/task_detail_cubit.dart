@@ -8,31 +8,25 @@ import 'task_detail_state.dart';
 class TaskDetailCubit extends Cubit<TaskDetailState> {
   final TodoItemsRepository repository;
 
-  TaskDetailCubit({required this.repository})
-      : super(const TaskDetailState());
+  TaskDetailCubit({required this.repository}) : super(const TaskDetailState());
 
   Future<void> loadTask(String id) async {
-    emit(state.copyWith(
-      status: TaskDetailStatus.loading,
-      errorMessage: null,
-    ));
+    emit(state.copyWith(status: TaskDetailStatus.loading, errorMessage: null));
 
     try {
       final task = await repository.getTodoItemById(id);
-      emit(state.copyWith(
-        status: TaskDetailStatus.success,
-        task: task,
-      ));
+      emit(state.copyWith(status: TaskDetailStatus.success, task: task));
     } on Failure catch (f) {
-      emit(state.copyWith(
-        status: TaskDetailStatus.error,
-        errorMessage: f.message,
-      ));
+      emit(
+        state.copyWith(status: TaskDetailStatus.error, errorMessage: f.message),
+      );
     } catch (_) {
-      emit(state.copyWith(
-        status: TaskDetailStatus.error,
-        errorMessage: 'Görev detayları alınamadı.',
-      ));
+      emit(
+        state.copyWith(
+          status: TaskDetailStatus.error,
+          errorMessage: 'Görev detayları alınamadı.',
+        ),
+      );
     }
   }
 
@@ -44,20 +38,16 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
 
     try {
       final updated = await repository.toggleComplete(currentTask.id);
-      emit(state.copyWith(
-        task: updated,
-        isToggling: false,
-      ));
+      emit(state.copyWith(task: updated, isToggling: false));
     } on Failure catch (f) {
-      emit(state.copyWith(
-        isToggling: false,
-        errorMessage: f.message,
-      ));
+      emit(state.copyWith(isToggling: false, errorMessage: f.message));
     } catch (_) {
-      emit(state.copyWith(
-        isToggling: false,
-        errorMessage: 'Görev durumu güncellenemedi.',
-      ));
+      emit(
+        state.copyWith(
+          isToggling: false,
+          errorMessage: 'Görev durumu güncellenemedi.',
+        ),
+      );
     }
   }
 
@@ -81,4 +71,3 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
     emit(state.copyWith(task: updated));
   }
 }
-

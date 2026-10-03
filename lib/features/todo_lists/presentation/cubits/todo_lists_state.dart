@@ -31,18 +31,18 @@ class TodoListsState extends Equatable {
       isDeleting: isDeleting ?? this.isDeleting,
       lists: lists ?? this.lists,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      successMessage:
-          clearSuccess ? null : (successMessage ?? this.successMessage),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
     );
   }
 
   @override
   List<Object?> get props => [
-        isLoading,
-        isDeleting,
-        lists,
-        errorMessage,
-        successMessage,
-      ];
+    isLoading,
+    isDeleting,
+    lists,
+    errorMessage,
+    successMessage,
+  ];
 }
-

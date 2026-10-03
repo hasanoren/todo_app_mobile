@@ -9,6 +9,8 @@ import '../widgets/priority_badge.dart';
 import '../widgets/task_form_modal.dart';
 import '../../../subtasks/data/models/subtask_response_dto.dart';
 import '../../../subtasks/presentation/widgets/subtasks_section.dart';
+import '../../../tags/data/models/tag_response_dto.dart';
+import '../../../tags/presentation/widgets/task_tags_section.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -370,56 +372,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Tags preview (FEAT-08 placeholder)
-                      Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.tag, size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Etiketler (${task.tags.length})',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              if (task.tags.isEmpty)
-                                Text(
-                                  'Henüz etiket eklenmemiş.',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                )
-                              else
-                                Wrap(
-                                  spacing: 8,
-                                  children: task.tags
-                                      .map(
-                                        (tag) => Chip(
-                                          label: Text(tag.name),
-                                          padding: EdgeInsets.zero,
-                                          visualDensity: VisualDensity.compact,
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                            ],
-                          ),
-                        ),
+                      // Tags section (FEAT-08)
+                      TaskTagsSection(
+                        taskId: task.id,
+                        isOwner: task.isOwner,
+                        initialTags: task.tags
+                            .map((t) => TagResponseDto(
+                                  id: t.id,
+                                  name: t.name,
+                                  createdAt: t.createdAt,
+                                ))
+                            .toList(),
                       ),
                     ],
                   ),

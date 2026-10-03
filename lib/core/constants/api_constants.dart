@@ -31,6 +31,13 @@ class ApiConstants {
       '/api/subtasks/$subtaskId/complete';
   static String subtask(String subtaskId) => '/api/subtasks/$subtaskId';
 
+  // Tags Endpoints
+  static const String tags = '/api/tags';
+  static String tagTasks(String tagId) => '/api/tags/$tagId/todoitems';
+  static String taskTags(String taskId) => '/api/todoitems/$taskId/tags';
+  static String taskTag(String taskId, String tagId) =>
+      '/api/todoitems/$taskId/tags/$tagId';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

@@ -44,11 +44,7 @@ class ColorPickerGrid extends StatelessWidget {
               ),
             ),
             child: isSelected
-                ? const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 24,
-                  )
+                ? const Icon(Icons.check, color: Colors.white, size: 24)
                 : null,
           ),
         );
@@ -56,4 +52,3 @@ class ColorPickerGrid extends StatelessWidget {
     );
   }
 }
-

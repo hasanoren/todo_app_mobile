@@ -50,3 +50,4 @@ class SubtasksState extends Equatable {
         errorMessage,
       ];
 }
+

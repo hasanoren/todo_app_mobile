@@ -32,3 +32,4 @@ DTO sent to `POST /api/todoitems/{taskId}/subtasks`:
   "title": "Subtask title"
 }
 ```
+

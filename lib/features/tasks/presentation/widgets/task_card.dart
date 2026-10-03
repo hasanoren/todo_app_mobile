@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/app_date_format.dart';
 import '../../data/models/todo_item_response_dto.dart';
 import 'priority_badge.dart';
+import '../../../tags/data/models/tag_response_dto.dart';
+import '../../../tags/presentation/screens/tagged_tasks_screen.dart';
+import '../../../tags/presentation/widgets/tag_chip.dart';
 
 class TaskCard extends StatelessWidget {
   final TodoItemResponseDto task;
@@ -193,6 +196,27 @@ class TaskCard extends StatelessWidget {
                               ],
                             ),
                           ),
+
+                        ...task.tags.map(
+                          (tag) => TagChip(
+                            name: tag.name,
+                            isSmall: true,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TaggedTasksScreen(
+                                    tag: TagResponseDto(
+                                      id: tag.id,
+                                      name: tag.name,
+                                      createdAt: tag.createdAt,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ],

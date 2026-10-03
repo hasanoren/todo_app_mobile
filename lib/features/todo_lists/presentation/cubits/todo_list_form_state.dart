@@ -47,13 +47,12 @@ class TodoListFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        initialList,
-        name,
-        colorCode,
-        nameError,
-        isSubmitting,
-        resultList,
-        errorMessage,
-      ];
+    initialList,
+    name,
+    colorCode,
+    nameError,
+    isSubmitting,
+    resultList,
+    errorMessage,
+  ];
 }
-
