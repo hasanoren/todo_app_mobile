@@ -81,3 +81,4 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
     emit(state.copyWith(task: updated));
   }
 }
+

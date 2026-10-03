@@ -143,3 +143,4 @@ Select "Sil" from a task card menu or detail action, confirm in the dialog, veri
 - **SC-003**: Tapping complete immediately provides responsive UI feedback and syncs with backend.
 - **SC-004**: Search returns debounced matching tasks without UI stutter.
 - **SC-005**: Zero flutter analyzer errors and 100% passing tests.
+

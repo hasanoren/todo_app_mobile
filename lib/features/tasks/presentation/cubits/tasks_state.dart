@@ -50,3 +50,4 @@ class TasksState extends Equatable {
         errorMessage,
       ];
 }
+

@@ -2,10 +2,7 @@ class UpdateTodoListRequest {
   final String name;
   final String? colorCode;
 
-  const UpdateTodoListRequest({
-    required this.name,
-    this.colorCode,
-  });
+  const UpdateTodoListRequest({required this.name, this.colorCode});
 
   Map<String, dynamic> toJson() {
     return {
@@ -14,4 +11,3 @@ class UpdateTodoListRequest {
     };
   }
 }
-

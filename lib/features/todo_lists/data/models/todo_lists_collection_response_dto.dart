@@ -9,8 +9,10 @@ class TodoListsCollectionResponseDto {
     if (json is List) {
       return TodoListsCollectionResponseDto(
         items: json
-            .map((item) =>
-                TodoListResponseDto.fromJson(item as Map<String, dynamic>))
+            .map(
+              (item) =>
+                  TodoListResponseDto.fromJson(item as Map<String, dynamic>),
+            )
             .toList(),
       );
     } else if (json is Map<String, dynamic>) {
@@ -18,8 +20,10 @@ class TodoListsCollectionResponseDto {
       if (rawItems is List) {
         return TodoListsCollectionResponseDto(
           items: rawItems
-              .map((item) =>
-                  TodoListResponseDto.fromJson(item as Map<String, dynamic>))
+              .map(
+                (item) =>
+                    TodoListResponseDto.fromJson(item as Map<String, dynamic>),
+              )
               .toList(),
         );
       }
@@ -27,4 +31,3 @@ class TodoListsCollectionResponseDto {
     return const TodoListsCollectionResponseDto(items: []);
   }
 }
-

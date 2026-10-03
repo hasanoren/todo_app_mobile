@@ -42,3 +42,4 @@
 - `DELETE /api/TodoItems/{id}` moves item to trash (`204 No Content`).
 - UI presents a modal confirmation dialog before executing delete.
 - Once deleted, item is removed from Cubit list state and a SnackBar is displayed.
+

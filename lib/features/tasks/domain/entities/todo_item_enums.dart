@@ -106,3 +106,4 @@ enum SortOrder {
 
   const SortOrder(this.apiValue, this.displayName);
 }
+

@@ -35,3 +35,4 @@
 ### 6. Soft Delete
 - Tap "Sil" icon/button; confirm dialog.
 - Verify deletion succeeds and navigates back / removes item.
+

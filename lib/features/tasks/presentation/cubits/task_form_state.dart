@@ -76,3 +76,4 @@ class TaskFormState extends Equatable {
         resultTask,
       ];
 }
+

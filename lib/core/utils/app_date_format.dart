@@ -14,3 +14,4 @@ class AppDateFormat {
     return _dateFormat.format(dateTime.toLocal());
   }
 }
+

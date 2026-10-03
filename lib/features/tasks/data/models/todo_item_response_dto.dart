@@ -244,3 +244,4 @@ class TodoItemResponseDto extends Equatable {
         sharedWith,
       ];
 }
+

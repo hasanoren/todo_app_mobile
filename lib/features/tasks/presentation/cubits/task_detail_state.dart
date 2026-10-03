@@ -34,3 +34,4 @@ class TaskDetailState extends Equatable {
   @override
   List<Object?> get props => [status, task, isToggling, errorMessage];
 }
+
