@@ -8,4 +8,6 @@ class RouteNames {
   static const String twoFactorSettings = '/two-factor-settings';
   static const String profile = '/profile';
   static const String todoLists = '/todo-lists';
+  static const String tasks = '/tasks';
+  static const String taskDetail = '/tasks/:id';
 }

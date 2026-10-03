@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../data/models/todo_list_response_dto.dart';
 import '../../domain/repositories/todo_lists_repository.dart';
 import '../cubits/todo_lists_cubit.dart';
@@ -181,6 +183,11 @@ class _TodoListsScreenState extends State<TodoListsScreen> {
                 final list = state.lists[index];
                 return TodoListCard(
                   list: list,
+                  onTap: () {
+                    context.push(
+                      '${RouteNames.tasks}?todoListId=${list.id}&todoListName=${Uri.encodeComponent(list.name)}',
+                    );
+                  },
                   onEdit: () => _openEditModal(list),
                   onDelete: () => _showDeleteConfirmation(context, list),
                 );

@@ -33,12 +33,25 @@ import '../../features/todo_lists/domain/repositories/todo_lists_repository.dart
 import '../../features/todo_lists/presentation/cubits/todo_lists_cubit.dart';
 import '../../features/todo_lists/presentation/screens/todo_lists_screen.dart';
 
+// Tasks
+import '../../features/tasks/domain/repositories/todo_items_repository.dart';
+import '../../features/tasks/presentation/cubits/tasks_cubit.dart';
+import '../../features/tasks/presentation/cubits/task_detail_cubit.dart';
+import '../../features/tasks/presentation/screens/tasks_screen.dart';
+import '../../features/tasks/presentation/screens/task_detail_screen.dart';
+
 class AppRouter {
   final AuthBloc authBloc;
   final AuthRepository authRepository;
   final TodoListsRepository todoListsRepository;
+  final TodoItemsRepository todoItemsRepository;
 
-  AppRouter(this.authBloc, this.authRepository, this.todoListsRepository);
+  AppRouter(
+    this.authBloc,
+    this.authRepository,
+    this.todoListsRepository,
+    this.todoItemsRepository,
+  );
 
   late final GoRouter router = GoRouter(
     initialLocation: RouteNames.home,
@@ -111,6 +124,13 @@ class AppRouter {
             title: const Text('Ana Ekran'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.task_alt),
+                tooltip: 'Tüm Görevler',
+                onPressed: () {
+                  context.push(RouteNames.tasks);
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.format_list_bulleted),
                 tooltip: 'Görev Listeleri',
                 onPressed: () {
@@ -146,6 +166,66 @@ class AppRouter {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: InkWell(
+                      onTap: () => context.push(RouteNames.tasks),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.task_alt,
+                                size: 32,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tüm Görevler',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Görevlerinizi görüntüleyin, filtreleyin ve yönetin.',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right, size: 28),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Card(
                     elevation: 3,
                     shape: RoundedRectangleBorder(
@@ -202,6 +282,32 @@ class AppRouter {
             ),
           ),
         ),
+      ),
+      GoRoute(
+        path: RouteNames.tasks,
+        name: RouteNames.tasks,
+        builder: (context, state) {
+          final listId = state.uri.queryParameters['todoListId'];
+          final listName = state.uri.queryParameters['todoListName'];
+          return BlocProvider(
+            create: (_) => TasksCubit(repository: todoItemsRepository),
+            child: TasksScreen(
+              initialTodoListId: listId,
+              todoListName: listName,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.taskDetail,
+        name: RouteNames.taskDetail,
+        builder: (context, state) {
+          final taskId = state.pathParameters['id'] ?? '';
+          return BlocProvider(
+            create: (_) => TaskDetailCubit(repository: todoItemsRepository),
+            child: TaskDetailScreen(taskId: taskId),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.todoLists,

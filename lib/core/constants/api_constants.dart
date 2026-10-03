@@ -21,6 +21,9 @@ class ApiConstants {
   // Todo Lists Endpoints
   static const String todoLists = '/api/TodoLists';
 
+  // Todo Items Endpoints
+  static const String todoItems = '/api/TodoItems';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

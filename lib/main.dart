@@ -5,6 +5,7 @@ import 'core/storage/secure_storage_service.dart';
 import 'core/network/dio_client.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'core/router/app_router.dart';
@@ -14,11 +15,15 @@ import 'features/auth/presentation/cubits/register_cubit.dart';
 import 'features/auth/presentation/cubits/two_factor_cubit.dart';
 import 'features/todo_lists/data/datasources/todo_lists_remote_data_source.dart';
 import 'features/todo_lists/data/repositories/todo_lists_repository_impl.dart';
+import 'features/todo_lists/domain/repositories/todo_lists_repository.dart';
+import 'features/tasks/data/datasources/todo_items_remote_data_source.dart';
+import 'features/tasks/data/repositories/todo_items_repository_impl.dart';
+import 'features/tasks/domain/repositories/todo_items_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // DI setup (normally done via get_it)
+  // DI setup
   final secureStorage = SecureStorageService();
 
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -43,22 +48,26 @@ void main() async {
   final authRepo = AuthRepositoryImpl(authRemoteDS, secureStorage);
 
   final todoListsRemoteDS = TodoListsRemoteDataSourceImpl(dio: dioClient.dio);
-  final todoListsRepo = TodoListsRepositoryImpl(remoteDataSource: todoListsRemoteDS);
+  final todoListsRepo =
+      TodoListsRepositoryImpl(remoteDataSource: todoListsRemoteDS);
+
+  final todoItemsRemoteDS = TodoItemsRemoteDataSourceImpl(dio: dioClient.dio);
+  final todoItemsRepo =
+      TodoItemsRepositoryImpl(remoteDataSource: todoItemsRemoteDS);
 
   authBloc = AuthBloc(authRepository: authRepo);
-  // Wait for initial session check
   authBloc.add(AppStarted());
 
-  // Wait for state to not be initial before running app if possible
-  // In a real app we'd use a splash screen for this, but for now we just runApp
-
-  final appRouter = AppRouter(authBloc, authRepo, todoListsRepo);
+  final appRouter =
+      AppRouter(authBloc, authRepo, todoListsRepo, todoItemsRepo);
 
   runApp(
     MyApp(
       authBloc: authBloc,
       appRouter: appRouter,
-      authRepo: authRepo, // Provided just for Cubits in this simple setup
+      authRepo: authRepo,
+      todoListsRepo: todoListsRepo,
+      todoItemsRepo: todoItemsRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -67,7 +76,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   final AuthBloc authBloc;
   final AppRouter appRouter;
-  final AuthRepositoryImpl authRepo;
+  final AuthRepository authRepo;
+  final TodoListsRepository todoListsRepo;
+  final TodoItemsRepository todoItemsRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -75,27 +86,35 @@ class MyApp extends StatelessWidget {
     required this.authBloc,
     required this.appRouter,
     required this.authRepo,
+    required this.todoListsRepo,
+    required this.todoItemsRepo,
     required this.scaffoldMessengerKey,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider.value(value: authBloc),
-        // Just for simplicity, we provide these globally here for the dummy screens
-        BlocProvider(create: (_) => LoginCubit(authRepo)),
-        BlocProvider(create: (_) => RegisterCubit(authRepo)),
-        BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
+        RepositoryProvider<AuthRepository>.value(value: authRepo),
+        RepositoryProvider<TodoListsRepository>.value(value: todoListsRepo),
+        RepositoryProvider<TodoItemsRepository>.value(value: todoItemsRepo),
       ],
-      child: MaterialApp.router(
-        title: 'Todo App',
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: authBloc),
+          BlocProvider(create: (_) => LoginCubit(authRepo)),
+          BlocProvider(create: (_) => RegisterCubit(authRepo)),
+          BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
+        ],
+        child: MaterialApp.router(
+          title: 'Todo App',
+          scaffoldMessengerKey: scaffoldMessengerKey,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          routerConfig: appRouter.router,
         ),
-        routerConfig: appRouter.router,
       ),
     );
   }
