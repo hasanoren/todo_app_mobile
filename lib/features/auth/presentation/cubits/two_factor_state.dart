@@ -1,48 +1,59 @@
 import 'package:equatable/equatable.dart';
 
-abstract class TwoFactorState extends Equatable {
-  final String code;
-  final String? codeError;
-  final String? generalError;
+class TwoFactorState extends Equatable {
+  final bool isLoading;
+  final bool isSubmitting;
+  final bool isEnabled;
+  final String? secret;
+  final String? qrCodeUri;
+  final String? errorMessage;
+  final String? successMessage;
+  final bool isSetupVisible;
 
-  const TwoFactorState({this.code = '', this.codeError, this.generalError});
+  const TwoFactorState({
+    this.isLoading = false,
+    this.isSubmitting = false,
+    this.isEnabled = false,
+    this.secret,
+    this.qrCodeUri,
+    this.errorMessage,
+    this.successMessage,
+    this.isSetupVisible = false,
+  });
 
   TwoFactorState copyWith({
-    String? code,
-    String? codeError,
-    String? generalError,
+    bool? isLoading,
+    bool? isSubmitting,
+    bool? isEnabled,
+    String? secret,
+    String? qrCodeUri,
+    String? errorMessage,
+    String? successMessage,
+    bool? isSetupVisible,
+    bool clearError = false,
+    bool clearSuccess = false,
   }) {
-    return TwoFactorStateImpl(
-      code: code ?? this.code,
-      codeError: codeError,
-      generalError: generalError,
+    return TwoFactorState(
+      isLoading: isLoading ?? this.isLoading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      isEnabled: isEnabled ?? this.isEnabled,
+      secret: secret ?? this.secret,
+      qrCodeUri: qrCodeUri ?? this.qrCodeUri,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
+      isSetupVisible: isSetupVisible ?? this.isSetupVisible,
     );
   }
 
   @override
-  List<Object?> get props => [code, codeError, generalError];
-}
-
-class TwoFactorStateImpl extends TwoFactorState {
-  const TwoFactorStateImpl({super.code, super.codeError, super.generalError});
-}
-
-class TwoFactorInitial extends TwoFactorState {
-  const TwoFactorInitial() : super();
-}
-
-class TwoFactorLoading extends TwoFactorState {
-  const TwoFactorLoading({required super.code});
-}
-
-class TwoFactorSuccess extends TwoFactorState {
-  const TwoFactorSuccess() : super();
-}
-
-class TwoFactorFailure extends TwoFactorState {
-  const TwoFactorFailure({
-    required super.code,
-    super.codeError,
-    super.generalError,
-  });
+  List<Object?> get props => [
+        isLoading,
+        isSubmitting,
+        isEnabled,
+        secret,
+        qrCodeUri,
+        errorMessage,
+        successMessage,
+        isSetupVisible,
+      ];
 }

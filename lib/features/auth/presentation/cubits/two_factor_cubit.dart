@@ -1,65 +1,134 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/errors/failure.dart';
+import '../../domain/repositories/auth_repository.dart';
 import 'two_factor_state.dart';
 
 class TwoFactorCubit extends Cubit<TwoFactorState> {
   final AuthRepository _authRepository;
-  final String _twoFactorToken;
 
-  TwoFactorCubit(this._authRepository, this._twoFactorToken)
-    : super(const TwoFactorInitial());
+  TwoFactorCubit(this._authRepository) : super(const TwoFactorState());
 
-  void codeChanged(String code) {
-    emit(state.copyWith(code: code));
-  }
-
-  Future<void> submit() async {
-    if (!_validateFields()) return;
-
-    emit(TwoFactorLoading(code: state.code));
-
+  Future<void> loadStatus() async {
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
-      await _authRepository.login2Fa(_twoFactorToken, state.code);
-      emit(const TwoFactorSuccess());
-    } on ServerFailure catch (e) {
-      String? codeError;
-      if (e.validationErrors != null) {
-        codeError = e.validationErrors!['code']?.join('\n');
-      }
-      emit(
-        TwoFactorFailure(
-          code: state.code,
-          codeError: codeError,
-          generalError: e.message,
-        ),
-      );
-    } on NetworkFailure catch (e) {
-      emit(TwoFactorFailure(code: state.code, generalError: e.message));
+      final isEnabled = await _authRepository.getTwoFactorStatus();
+      emit(state.copyWith(
+        isLoading: false,
+        isEnabled: isEnabled,
+      ));
+    } on Failure catch (f) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: f.message,
+      ));
     } catch (_) {
-      emit(
-        TwoFactorFailure(
-          code: state.code,
-          generalError: '2FA doğrulama başarısız oldu.',
-        ),
-      );
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'İki faktörlü doğrulama durumu yüklenemedi.',
+      ));
     }
   }
 
-  bool _validateFields() {
-    String? codeError;
-
-    final regex = RegExp(r'^\d{6}$');
-    if (!regex.hasMatch(state.code)) {
-      codeError = 'Geçerli 6 haneli kodu girin.';
+  Future<void> initiateSetup() async {
+    emit(state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true));
+    try {
+      final response = await _authRepository.enableTwoFactor();
+      emit(state.copyWith(
+        isSubmitting: false,
+        secret: response.secret,
+        qrCodeUri: response.qrCodeUri,
+        isSetupVisible: true,
+      ));
+    } on Failure catch (f) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: f.message,
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: 'Kurulum başlatılamadı. Lütfen tekrar deneyin.',
+      ));
     }
+  }
 
-    if (codeError != null) {
-      emit(TwoFactorFailure(code: state.code, codeError: codeError));
+  void cancelSetup() {
+    emit(state.copyWith(
+      isSetupVisible: false,
+      clearError: true,
+      clearSuccess: true,
+    ));
+  }
+
+  Future<bool> verifyCode(String code) async {
+    final trimmedCode = code.trim();
+    if (trimmedCode.length != 6 || int.tryParse(trimmedCode) == null) {
+      emit(state.copyWith(
+        errorMessage: 'Lütfen 6 haneli geçerli doğrulama kodunu giriniz.',
+      ));
       return false;
     }
 
-    return true;
+    emit(state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true));
+    try {
+      final message = await _authRepository.verifyTwoFactor(trimmedCode);
+      emit(state.copyWith(
+        isSubmitting: false,
+        isEnabled: true,
+        isSetupVisible: false,
+        successMessage: message.isNotEmpty
+            ? message
+            : 'İki faktörlü doğrulama başarıyla etkinleştirildi.',
+      ));
+      return true;
+    } on Failure catch (f) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: f.message,
+      ));
+      return false;
+    } catch (_) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: 'Kod doğrulanamadı. Lütfen tekrar deneyin.',
+      ));
+      return false;
+    }
+  }
+
+  Future<bool> disable2fa(String code) async {
+    final trimmedCode = code.trim();
+    if (trimmedCode.length != 6 || int.tryParse(trimmedCode) == null) {
+      emit(state.copyWith(
+        errorMessage: 'Lütfen 6 haneli geçerli doğrulama kodunu giriniz.',
+      ));
+      return false;
+    }
+
+    emit(state.copyWith(isSubmitting: true, clearError: true, clearSuccess: true));
+    try {
+      final message = await _authRepository.disableTwoFactor(trimmedCode);
+      emit(state.copyWith(
+        isSubmitting: false,
+        isEnabled: false,
+        successMessage: message.isNotEmpty
+            ? message
+            : 'İki faktörlü doğrulama başarıyla devre dışı bırakıldı.',
+      ));
+      return true;
+    } on Failure catch (f) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: f.message,
+      ));
+      return false;
+    } catch (_) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        errorMessage: 'İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.',
+      ));
+      return false;
+    }
   }
 }

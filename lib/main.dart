@@ -82,9 +82,7 @@ class MyApp extends StatelessWidget {
         // Just for simplicity, we provide these globally here for the dummy screens
         BlocProvider(create: (_) => LoginCubit(authRepo)),
         BlocProvider(create: (_) => RegisterCubit(authRepo)),
-        BlocProvider(
-          create: (_) => TwoFactorCubit(authRepo, ''),
-        ), // Token injected dynamically usually
+        BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
       ],
       child: MaterialApp.router(
         title: 'Todo App',

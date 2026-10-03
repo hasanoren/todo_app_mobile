@@ -10,6 +10,12 @@ class ApiConstants {
   static const String logout = '/api/Auth/logout';
   static const String forgotPassword = '/api/Auth/forgot-password';
   static const String resetPassword = '/api/Auth/reset-password';
+  static const String enable2fa = '/api/Auth/2fa/enable';
+  static const String verify2fa = '/api/Auth/2fa/verify';
+  static const String disable2fa = '/api/Auth/2fa/disable';
+
+  // User Endpoints
+  static const String userMe = '/api/Users/me';
 
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;

@@ -9,6 +9,9 @@ import '../models/refresh_token_request.dart';
 import '../models/logout_request.dart';
 import '../models/forgot_password_request.dart';
 import '../models/reset_password_request.dart';
+import '../models/two_factor_verify_request.dart';
+import '../models/two_factor_disable_request.dart';
+import '../models/two_factor_enable_response_dto.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
@@ -200,6 +203,56 @@ class AuthRepositoryImpl implements AuthRepository {
         newPassword: newPassword,
       );
       final response = await _remoteDataSource.resetPassword(request);
+      return response.message;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<bool> getTwoFactorStatus() async {
+    try {
+      final profile = await _remoteDataSource.getProfile();
+      return profile.isTwoFactorEnabled;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<TwoFactorEnableResponseDto> enableTwoFactor() async {
+    try {
+      final response = await _remoteDataSource.enable2fa();
+      return response;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<String> verifyTwoFactor(String code) async {
+    try {
+      final request = TwoFactorVerifyRequest(code: code);
+      final response = await _remoteDataSource.verify2fa(request);
+      return response.message;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<String> disableTwoFactor(String code) async {
+    try {
+      final request = TwoFactorDisableRequest(code: code);
+      final response = await _remoteDataSource.disable2fa(request);
       return response.message;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);

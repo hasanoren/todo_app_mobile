@@ -14,11 +14,14 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 // Screens
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/auth/presentation/screens/login_2fa_screen.dart';
 import '../../features/auth/presentation/screens/two_factor_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 
 // Cubits
+import '../../features/auth/presentation/cubits/login_2fa_cubit.dart';
+import '../../features/auth/presentation/cubits/two_factor_cubit.dart';
 import '../../features/auth/presentation/cubits/forgot_password_cubit.dart';
 import '../../features/auth/presentation/cubits/reset_password_cubit.dart';
 
@@ -99,7 +102,15 @@ class AppRouter {
             title: const Text('Ana Ekran'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.shield_outlined),
+                tooltip: 'İki Faktörlü Doğrulama (2FA)',
+                onPressed: () {
+                  context.push(RouteNames.twoFactorSettings);
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.logout),
+                tooltip: 'Çıkış Yap',
                 onPressed: () {
                   context.read<AuthBloc>().add(LoggedOut());
                 },
@@ -119,7 +130,23 @@ class AppRouter {
       ),
       GoRoute(
         path: RouteNames.login2fa,
-        builder: (context, state) => const TwoFactorScreen(),
+        builder: (context, state) {
+          final authState = authBloc.state;
+          final twoFactorToken = authState is AuthTwoFactorRequiredState
+              ? authState.twoFactorToken
+              : '';
+          return BlocProvider(
+            create: (_) => Login2faCubit(authRepository, twoFactorToken),
+            child: const Login2faScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.twoFactorSettings,
+        builder: (context, state) => BlocProvider(
+          create: (_) => TwoFactorCubit(authRepository),
+          child: const TwoFactorScreen(),
+        ),
       ),
       GoRoute(
         path: RouteNames.forgotPassword,

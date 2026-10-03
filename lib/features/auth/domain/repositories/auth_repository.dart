@@ -19,4 +19,12 @@ abstract class AuthRepository {
   Future<String> forgotPassword(String email);
 
   Future<String> resetPassword(String token, String newPassword);
+
+  Future<bool> getTwoFactorStatus();
+
+  Future<dynamic> enableTwoFactor();
+
+  Future<String> verifyTwoFactor(String code);
+
+  Future<String> disableTwoFactor(String code);
 }

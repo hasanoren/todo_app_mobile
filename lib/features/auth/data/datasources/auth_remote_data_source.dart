@@ -11,8 +11,10 @@ import '../models/logout_request.dart';
 import '../models/forgot_password_request.dart';
 import '../models/reset_password_request.dart';
 import '../models/auth_message_response_dto.dart';
-
-// Note: Other models will be imported as needed in future tasks
+import '../models/two_factor_enable_response_dto.dart';
+import '../models/two_factor_verify_request.dart';
+import '../models/two_factor_disable_request.dart';
+import '../models/user_profile_response_dto.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponseDto> register(RegisterRequest request);
@@ -22,6 +24,10 @@ abstract class AuthRemoteDataSource {
   Future<void> logout(LogoutRequest request);
   Future<AuthMessageResponseDto> forgotPassword(ForgotPasswordRequest request);
   Future<AuthMessageResponseDto> resetPassword(ResetPasswordRequest request);
+  Future<UserProfileResponseDto> getProfile();
+  Future<TwoFactorEnableResponseDto> enable2fa();
+  Future<AuthMessageResponseDto> verify2fa(TwoFactorVerifyRequest request);
+  Future<AuthMessageResponseDto> disable2fa(TwoFactorDisableRequest request);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -188,6 +194,96 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: request.toJson(),
       );
 
+      return AuthMessageResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<UserProfileResponseDto> getProfile() async {
+    try {
+      final response = await _dio.get(ApiConstants.userMe);
+      return UserProfileResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<TwoFactorEnableResponseDto> enable2fa() async {
+    try {
+      final response = await _dio.post(ApiConstants.enable2fa);
+      return TwoFactorEnableResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<AuthMessageResponseDto> verify2fa(TwoFactorVerifyRequest request) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.verify2fa,
+        data: request.toJson(),
+      );
+      return AuthMessageResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<AuthMessageResponseDto> disable2fa(TwoFactorDisableRequest request) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.disable2fa,
+        data: request.toJson(),
+      );
       return AuthMessageResponseDto.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
