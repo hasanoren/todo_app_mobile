@@ -7,6 +7,8 @@ import '../cubits/task_detail_cubit.dart';
 import '../cubits/task_detail_state.dart';
 import '../widgets/priority_badge.dart';
 import '../widgets/task_form_modal.dart';
+import '../../../subtasks/data/models/subtask_response_dto.dart';
+import '../../../subtasks/presentation/widgets/subtasks_section.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -351,80 +353,22 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Subtasks preview (FEAT-07 placeholder)
-                      Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.checklist, size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Alt Görevler (${task.subTasks.length})',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              if (task.subTasks.isEmpty)
-                                Text(
-                                  'Henüz alt görev eklenmemiş.',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                )
-                              else
-                                ...task.subTasks.map(
-                                  (sub) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 4,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          sub.isCompleted
-                                              ? Icons.check_box
-                                              : Icons.check_box_outline_blank,
-                                          size: 18,
-                                          color: sub.isCompleted
-                                              ? Colors.green
-                                              : Colors.grey,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            sub.title,
-                                            style: TextStyle(
-                                              decoration: sub.isCompleted
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                              color: sub.isCompleted
-                                                  ? Colors.grey
-                                                  : null,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
+                      // Subtasks section (FEAT-07)
+                      SubtasksSection(
+                        taskId: task.id,
+                        isOwner: task.isOwner,
+                        initialSubtasks: task.subTasks
+                            .map((s) => SubtaskResponseDto(
+                                  id: s.id,
+                                  taskId: s.taskId,
+                                  title: s.title,
+                                  status: s.status,
+                                  createdAt: s.createdAt,
+                                  updatedAt: s.updatedAt,
+                                ))
+                            .toList(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // Tags preview (FEAT-08 placeholder)
                       Card(

@@ -19,6 +19,9 @@ import 'features/todo_lists/domain/repositories/todo_lists_repository.dart';
 import 'features/tasks/data/datasources/todo_items_remote_data_source.dart';
 import 'features/tasks/data/repositories/todo_items_repository_impl.dart';
 import 'features/tasks/domain/repositories/todo_items_repository.dart';
+import 'features/subtasks/data/datasources/subtasks_remote_data_source.dart';
+import 'features/subtasks/data/repositories/subtasks_repository_impl.dart';
+import 'features/subtasks/domain/repositories/subtasks_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +58,10 @@ void main() async {
   final todoItemsRepo =
       TodoItemsRepositoryImpl(remoteDataSource: todoItemsRemoteDS);
 
+  final subtasksRemoteDS = SubtasksRemoteDataSourceImpl(dio: dioClient.dio);
+  final subtasksRepo =
+      SubtasksRepositoryImpl(remoteDataSource: subtasksRemoteDS);
+
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
 
@@ -68,6 +75,7 @@ void main() async {
       authRepo: authRepo,
       todoListsRepo: todoListsRepo,
       todoItemsRepo: todoItemsRepo,
+      subtasksRepo: subtasksRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -79,6 +87,7 @@ class MyApp extends StatelessWidget {
   final AuthRepository authRepo;
   final TodoListsRepository todoListsRepo;
   final TodoItemsRepository todoItemsRepo;
+  final SubtasksRepository subtasksRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -88,6 +97,7 @@ class MyApp extends StatelessWidget {
     required this.authRepo,
     required this.todoListsRepo,
     required this.todoItemsRepo,
+    required this.subtasksRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -98,6 +108,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<AuthRepository>.value(value: authRepo),
         RepositoryProvider<TodoListsRepository>.value(value: todoListsRepo),
         RepositoryProvider<TodoItemsRepository>.value(value: todoItemsRepo),
+        RepositoryProvider<SubtasksRepository>.value(value: subtasksRepo),
       ],
       child: MultiBlocProvider(
         providers: [

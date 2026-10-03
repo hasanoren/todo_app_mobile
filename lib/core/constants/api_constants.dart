@@ -24,6 +24,13 @@ class ApiConstants {
   // Todo Items Endpoints
   static const String todoItems = '/api/TodoItems';
 
+  // Subtasks Endpoints
+  static String taskSubtasks(String taskId) =>
+      '/api/todoitems/$taskId/subtasks';
+  static String subtaskComplete(String subtaskId) =>
+      '/api/subtasks/$subtaskId/complete';
+  static String subtask(String subtaskId) => '/api/subtasks/$subtaskId';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

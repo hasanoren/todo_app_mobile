@@ -1,0 +1,46 @@
+{
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/todoitems/{taskId}/subtasks",
+      "auth": "Required (owner or shared)",
+      "description": "Create a new subtask",
+      "request": {
+        "title": "string (required)"
+      },
+      "response": {
+        "status": 201,
+        "body": "SubTaskResponse"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/todoitems/{taskId}/subtasks",
+      "auth": "Required (owner or shared)",
+      "description": "Get subtasks collection for a task",
+      "response": {
+        "status": 200,
+        "body": "CollectionResponse<SubTaskResponse>"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/subtasks/{id}/complete",
+      "auth": "Required (owner or shared)",
+      "description": "Toggle subtask complete status",
+      "response": {
+        "status": 200,
+        "body": "SubTaskResponse"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/subtasks/{id}",
+      "auth": "Required (owner only)",
+      "description": "Delete subtask",
+      "response": {
+        "status": 204
+      }
+    }
+  ]
+}
