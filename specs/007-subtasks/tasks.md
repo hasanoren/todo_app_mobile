@@ -57,4 +57,4 @@
 
 - [x] T013 Write unit tests in `test/features/subtasks/subtasks_test.dart`
 - [x] T014 Run `flutter analyze` and `flutter test`
-- [ ] T015 Build debug APK and install on Samsung Galaxy A71 (`RZ8N20EGMJX`)
+- [x] T015 Build debug APK and install on Samsung Galaxy A71 (`RZ8N20EGMJX`)
