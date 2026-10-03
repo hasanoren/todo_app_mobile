@@ -6,4 +6,3 @@ abstract class SubtasksRepository {
   Future<SubtaskResponseDto> toggleComplete(String subtaskId);
   Future<void> deleteSubtask(String subtaskId);
 }
-

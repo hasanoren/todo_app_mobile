@@ -103,10 +103,7 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextButton(
-                  onPressed: _reset,
-                  child: const Text('Sıfırla'),
-                ),
+                TextButton(onPressed: _reset, child: const Text('Sıfırla')),
               ],
             ),
             const Divider(),
@@ -239,10 +236,7 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                   value: 'desc',
                   label: Text('Azalan (Yeni > Eski)'),
                 ),
-                ButtonSegment(
-                  value: 'asc',
-                  label: Text('Artan (Eski > Yeni)'),
-                ),
+                ButtonSegment(value: 'asc', label: Text('Artan (Eski > Yeni)')),
               ],
               selected: {_sortOrder},
               onSelectionChanged: (set) {
@@ -272,4 +266,3 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
     );
   }
 }
-

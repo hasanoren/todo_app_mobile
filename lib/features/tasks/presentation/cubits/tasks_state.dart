@@ -42,12 +42,11 @@ class TasksState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        items,
-        filter,
-        hasNextPage,
-        isLoadingMore,
-        errorMessage,
-      ];
+    status,
+    items,
+    filter,
+    hasNextPage,
+    isLoadingMore,
+    errorMessage,
+  ];
 }
-

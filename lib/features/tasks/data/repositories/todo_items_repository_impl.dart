@@ -35,9 +35,7 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Görev detayları alınamadı.',
-      );
+      throw const NetworkFailure(message: 'Görev detayları alınamadı.');
     }
   }
 
@@ -50,9 +48,7 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Görev oluşturulamadı.',
-      );
+      throw const NetworkFailure(message: 'Görev oluşturulamadı.');
     }
   }
 
@@ -66,9 +62,7 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Görev güncellenemedi.',
-      );
+      throw const NetworkFailure(message: 'Görev güncellenemedi.');
     }
   }
 
@@ -79,9 +73,7 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Görev durumu güncellenemedi.',
-      );
+      throw const NetworkFailure(message: 'Görev durumu güncellenemedi.');
     }
   }
 
@@ -92,10 +84,7 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Görev silinemedi.',
-      );
+      throw const NetworkFailure(message: 'Görev silinemedi.');
     }
   }
 }
-

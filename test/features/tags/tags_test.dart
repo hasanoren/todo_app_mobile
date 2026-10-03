@@ -60,7 +60,7 @@ class MockTagsRepository implements TagsRepository {
   }
 
   @override
-  Future<PaginatedTodoItemsResponseDto> getTasksByTag(
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTasksByTag(
     String tagId, {
     int page = 1,
     int pageSize = 20,

@@ -19,7 +19,9 @@
       "method": "POST",
       "path": "/api/tags",
       "auth": true,
-      "roles": ["Admin"],
+      "roles": [
+        "Admin"
+      ],
       "description": "Create a new tag (admin only)",
       "request": {
         "name": "Backend"
@@ -78,4 +80,3 @@
     }
   ]
 }
-

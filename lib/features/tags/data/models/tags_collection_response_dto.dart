@@ -24,4 +24,3 @@ class TagsCollectionResponseDto {
     return const TagsCollectionResponseDto(items: []);
   }
 }
-

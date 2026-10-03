@@ -11,7 +11,7 @@ import '../models/tags_collection_response_dto.dart';
 abstract class TagsRemoteDataSource {
   Future<List<TagResponseDto>> getSystemTags();
   Future<TagResponseDto> createTag(CreateTagRequest request);
-  Future<PaginatedTodoItemsResponseDto> getTasksByTag(
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTasksByTag(
     String tagId, {
     int page = 1,
     int pageSize = 20,
@@ -51,7 +51,7 @@ class TagsRemoteDataSourceImpl implements TagsRemoteDataSource {
   }
 
   @override
-  Future<PaginatedTodoItemsResponseDto> getTasksByTag(
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTasksByTag(
     String tagId, {
     int page = 1,
     int pageSize = 20,

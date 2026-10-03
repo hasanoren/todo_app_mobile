@@ -11,10 +11,7 @@ class SubtasksCubit extends Cubit<SubtasksState> {
   SubtasksCubit({required this.repository}) : super(const SubtasksState());
 
   void setInitialItems(List<SubtaskResponseDto> initialItems) {
-    emit(state.copyWith(
-      status: SubtasksStatus.success,
-      items: initialItems,
-    ));
+    emit(state.copyWith(status: SubtasksStatus.success, items: initialItems));
   }
 
   Future<void> loadSubtasks(String taskId) async {
@@ -22,20 +19,18 @@ class SubtasksCubit extends Cubit<SubtasksState> {
 
     try {
       final items = await repository.getSubtasks(taskId);
-      emit(state.copyWith(
-        status: SubtasksStatus.success,
-        items: items,
-      ));
+      emit(state.copyWith(status: SubtasksStatus.success, items: items));
     } on Failure catch (f) {
-      emit(state.copyWith(
-        status: SubtasksStatus.error,
-        errorMessage: f.message,
-      ));
+      emit(
+        state.copyWith(status: SubtasksStatus.error, errorMessage: f.message),
+      );
     } catch (_) {
-      emit(state.copyWith(
-        status: SubtasksStatus.error,
-        errorMessage: 'Alt görevler yüklenemedi.',
-      ));
+      emit(
+        state.copyWith(
+          status: SubtasksStatus.error,
+          errorMessage: 'Alt görevler yüklenemedi.',
+        ),
+      );
     }
   }
 
@@ -47,22 +42,15 @@ class SubtasksCubit extends Cubit<SubtasksState> {
 
     try {
       final created = await repository.createSubtask(taskId, trimmed);
-      emit(state.copyWith(
-        isAdding: false,
-        items: [...state.items, created],
-      ));
+      emit(state.copyWith(isAdding: false, items: [...state.items, created]));
       return true;
     } on Failure catch (f) {
-      emit(state.copyWith(
-        isAdding: false,
-        errorMessage: f.message,
-      ));
+      emit(state.copyWith(isAdding: false, errorMessage: f.message));
       return false;
     } catch (_) {
-      emit(state.copyWith(
-        isAdding: false,
-        errorMessage: 'Alt görev eklenemedi.',
-      ));
+      emit(
+        state.copyWith(isAdding: false, errorMessage: 'Alt görev eklenemedi.'),
+      );
       return false;
     }
   }
@@ -76,10 +64,7 @@ class SubtasksCubit extends Cubit<SubtasksState> {
     final updatedList = List<SubtaskResponseDto>.from(state.items);
     updatedList[index] = original.copyWith(status: optimisticStatus);
 
-    emit(state.copyWith(
-      items: updatedList,
-      togglingId: subtaskId,
-    ));
+    emit(state.copyWith(items: updatedList, togglingId: subtaskId));
 
     try {
       final serverUpdated = await repository.toggleComplete(subtaskId);
@@ -87,10 +72,7 @@ class SubtasksCubit extends Cubit<SubtasksState> {
       if (finalIdx != -1) {
         final syncedList = List<SubtaskResponseDto>.from(state.items);
         syncedList[finalIdx] = serverUpdated;
-        emit(state.copyWith(
-          items: syncedList,
-          clearTogglingId: true,
-        ));
+        emit(state.copyWith(items: syncedList, clearTogglingId: true));
       }
     } on Failure catch (f) {
       // Revert on failure
@@ -98,22 +80,26 @@ class SubtasksCubit extends Cubit<SubtasksState> {
       if (revertIdx != -1) {
         final revertedList = List<SubtaskResponseDto>.from(state.items);
         revertedList[revertIdx] = original;
-        emit(state.copyWith(
-          items: revertedList,
-          clearTogglingId: true,
-          errorMessage: f.message,
-        ));
+        emit(
+          state.copyWith(
+            items: revertedList,
+            clearTogglingId: true,
+            errorMessage: f.message,
+          ),
+        );
       }
     } catch (_) {
       final revertIdx = state.items.indexWhere((s) => s.id == subtaskId);
       if (revertIdx != -1) {
         final revertedList = List<SubtaskResponseDto>.from(state.items);
         revertedList[revertIdx] = original;
-        emit(state.copyWith(
-          items: revertedList,
-          clearTogglingId: true,
-          errorMessage: 'Alt görev güncellenemedi.',
-        ));
+        emit(
+          state.copyWith(
+            items: revertedList,
+            clearTogglingId: true,
+            errorMessage: 'Alt görev güncellenemedi.',
+          ),
+        );
       }
     }
   }
@@ -121,8 +107,7 @@ class SubtasksCubit extends Cubit<SubtasksState> {
   Future<bool> deleteSubtask(String subtaskId) async {
     try {
       await repository.deleteSubtask(subtaskId);
-      final remaining =
-          state.items.where((s) => s.id != subtaskId).toList();
+      final remaining = state.items.where((s) => s.id != subtaskId).toList();
       emit(state.copyWith(items: remaining));
       return true;
     } on Failure catch (f) {
@@ -134,4 +119,3 @@ class SubtasksCubit extends Cubit<SubtasksState> {
     }
   }
 }
-

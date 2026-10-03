@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../core/errors/failure.dart';
 import '../../data/models/tag_response_dto.dart';
 import '../../domain/repositories/tags_repository.dart';
@@ -13,10 +14,10 @@ class TaskTagsCubit extends Cubit<TaskTagsState> {
     required this.taskId,
     List<TagResponseDto>? initialTags,
   }) : super(
-          initialTags != null
-              ? TaskTagsLoaded(tags: initialTags)
-              : const TaskTagsInitial(),
-        );
+         initialTags != null
+             ? TaskTagsLoaded(tags: initialTags)
+             : const TaskTagsInitial(),
+       );
 
   Future<void> loadTags() async {
     emit(const TaskTagsLoading());
@@ -42,23 +43,20 @@ class TaskTagsCubit extends Cubit<TaskTagsState> {
     emit(currentState.copyWith(isAttaching: true, clearErrorMessage: true));
     try {
       await tagsRepository.attachTagToTask(taskId, tag.id);
-      final updatedTags = List<TagResponseDto>.from(currentState.tags)..add(tag);
-      emit(currentState.copyWith(
-        tags: updatedTags,
-        isAttaching: false,
-      ));
+      final updatedTags = List<TagResponseDto>.from(currentState.tags)
+        ..add(tag);
+      emit(currentState.copyWith(tags: updatedTags, isAttaching: false));
       return true;
     } on Failure catch (e) {
-      emit(currentState.copyWith(
-        isAttaching: false,
-        errorMessage: e.message,
-      ));
+      emit(currentState.copyWith(isAttaching: false, errorMessage: e.message));
       return false;
     } catch (_) {
-      emit(currentState.copyWith(
-        isAttaching: false,
-        errorMessage: 'Etiket göreve eklenemedi.',
-      ));
+      emit(
+        currentState.copyWith(
+          isAttaching: false,
+          errorMessage: 'Etiket göreve eklenemedi.',
+        ),
+      );
       return false;
     }
   }
@@ -67,32 +65,30 @@ class TaskTagsCubit extends Cubit<TaskTagsState> {
     final currentState = state;
     if (currentState is! TaskTagsLoaded) return false;
 
-    emit(currentState.copyWith(
-      detachingTagId: tagId,
-      clearErrorMessage: true,
-    ));
+    emit(currentState.copyWith(detachingTagId: tagId, clearErrorMessage: true));
     try {
       await tagsRepository.detachTagFromTask(taskId, tagId);
-      final updatedTags =
-          currentState.tags.where((t) => t.id != tagId).toList();
-      emit(currentState.copyWith(
-        tags: updatedTags,
-        clearDetachingTagId: true,
-      ));
+      final updatedTags = currentState.tags
+          .where((t) => t.id != tagId)
+          .toList();
+      emit(currentState.copyWith(tags: updatedTags, clearDetachingTagId: true));
       return true;
     } on Failure catch (e) {
-      emit(currentState.copyWith(
-        clearDetachingTagId: true,
-        errorMessage: e.message,
-      ));
+      emit(
+        currentState.copyWith(
+          clearDetachingTagId: true,
+          errorMessage: e.message,
+        ),
+      );
       return false;
     } catch (_) {
-      emit(currentState.copyWith(
-        clearDetachingTagId: true,
-        errorMessage: 'Etiket görevden kaldırılamadı.',
-      ));
+      emit(
+        currentState.copyWith(
+          clearDetachingTagId: true,
+          errorMessage: 'Etiket görevden kaldırılamadı.',
+        ),
+      );
       return false;
     }
   }
 }
-

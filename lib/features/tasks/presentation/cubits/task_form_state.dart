@@ -53,8 +53,7 @@ class TaskFormState extends Equatable {
       description: clearDescription ? null : (description ?? this.description),
       dueDate: clearDueDate ? null : (dueDate ?? this.dueDate),
       priority: priority ?? this.priority,
-      todoListId:
-          clearTodoListId ? null : (todoListId ?? this.todoListId),
+      todoListId: clearTodoListId ? null : (todoListId ?? this.todoListId),
       isEditing: isEditing ?? this.isEditing,
       taskId: taskId ?? this.taskId,
       errorMessage: errorMessage,
@@ -64,16 +63,15 @@ class TaskFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        title,
-        description,
-        dueDate,
-        priority,
-        todoListId,
-        isEditing,
-        taskId,
-        errorMessage,
-        resultTask,
-      ];
+    status,
+    title,
+    description,
+    dueDate,
+    priority,
+    todoListId,
+    isEditing,
+    taskId,
+    errorMessage,
+    resultTask,
+  ];
 }
-

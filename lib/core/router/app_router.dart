@@ -58,7 +58,9 @@ class AppRouter {
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
     redirect: (BuildContext context, GoRouterState state) {
       final authState = authBloc.state;
-      debugPrint('GoRouter redirect -> URI: ${state.uri}, host: "${state.uri.host}", path: "${state.uri.path}", matchedLocation: "${state.matchedLocation}"');
+      debugPrint(
+        'GoRouter redirect -> URI: ${state.uri}, host: "${state.uri.host}", path: "${state.uri.path}", matchedLocation: "${state.matchedLocation}"',
+      );
 
       // Handle custom scheme deep links like todoapp://reset-password?token=...
       if (state.uri.host == 'reset-password' &&
@@ -202,9 +204,7 @@ class AppRouter {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
@@ -212,9 +212,7 @@ class AppRouter {
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.grey.shade600,
-                                        ),
+                                        ?.copyWith(color: Colors.grey.shade600),
                                   ),
                                 ],
                               ),
@@ -241,7 +239,9 @@ class AppRouter {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -257,16 +257,18 @@ class AppRouter {
                                 children: [
                                   Text(
                                     'Görev Listeleri',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     'Listelerinizi oluşturun ve düzenleyin.',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: Colors.grey.shade600,
-                                        ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: Colors.grey.shade600),
                                   ),
                                 ],
                               ),

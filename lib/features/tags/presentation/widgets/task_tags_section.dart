@@ -49,10 +49,7 @@ class _TaskTagsSectionState extends State<TaskTagsSection> {
   }
 
   void _openTagSelector() {
-    TagSelectorBottomSheet.show(
-      context,
-      taskTagsCubit: _cubit,
-    );
+    TagSelectorBottomSheet.show(context, taskTagsCubit: _cubit);
   }
 
   @override
@@ -73,7 +70,9 @@ class _TaskTagsSectionState extends State<TaskTagsSection> {
           }
         },
         builder: (context, state) {
-          final tags = state is TaskTagsLoaded ? state.tags : <TagResponseDto>[];
+          final tags = state is TaskTagsLoaded
+              ? state.tags
+              : <TagResponseDto>[];
           final isLoading = state is TaskTagsLoading;
           final isAttaching = state is TaskTagsLoaded && state.isAttaching;
 
@@ -210,7 +209,8 @@ class _TaskTagsSectionState extends State<TaskTagsSection> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         ...tags.map((tag) {
-                          final isDetaching = state is TaskTagsLoaded &&
+                          final isDetaching =
+                              state is TaskTagsLoaded &&
                               state.detachingTagId == tag.id;
 
                           if (isDetaching) {
@@ -253,4 +253,3 @@ class _TaskTagsSectionState extends State<TaskTagsSection> {
     );
   }
 }
-

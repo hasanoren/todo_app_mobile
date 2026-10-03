@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../data/models/tag_response_dto.dart';
 
 abstract class SystemTagsState extends Equatable {
@@ -40,8 +41,7 @@ class SystemTagsLoaded extends SystemTagsState {
     return SystemTagsLoaded(
       tags: tags ?? this.tags,
       isCreating: isCreating ?? this.isCreating,
-      createError:
-          clearCreateError ? null : (createError ?? this.createError),
+      createError: clearCreateError ? null : (createError ?? this.createError),
       newlyCreatedTag: clearNewlyCreatedTag
           ? null
           : (newlyCreatedTag ?? this.newlyCreatedTag),
@@ -60,4 +60,3 @@ class SystemTagsFailure extends SystemTagsState {
   @override
   List<Object?> get props => [message];
 }
-

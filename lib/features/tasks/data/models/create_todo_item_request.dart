@@ -14,10 +14,7 @@ class CreateTodoItemRequest {
   });
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-      'title': title.trim(),
-      'priority': priority,
-    };
+    final map = <String, dynamic>{'title': title.trim(), 'priority': priority};
     if (description != null && description!.trim().isNotEmpty) {
       map['description'] = description!.trim();
     }
@@ -30,4 +27,3 @@ class CreateTodoItemRequest {
     return map;
   }
 }
-

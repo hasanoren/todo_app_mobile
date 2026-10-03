@@ -24,8 +24,12 @@ class MockTodoItemsRepository implements TodoItemsRepository {
     if (shouldThrow) throw Exception('API Error');
     final filtered = filter.search != null && filter.search!.isNotEmpty
         ? mockItems
-            .where((i) => i.title.toLowerCase().contains(filter.search!.toLowerCase()))
-            .toList()
+              .where(
+                (i) => i.title.toLowerCase().contains(
+                  filter.search!.toLowerCase(),
+                ),
+              )
+              .toList()
         : mockItems;
 
     return PaginatedResponseDto(
@@ -147,10 +151,10 @@ void main() {
             'title': 'Alt Adım 1',
             'status': 'Completed',
             'createdAt': '2026-09-01T10:00:00Z',
-          }
+          },
         ],
         'tags': [
-          {'id': 'tag-1', 'name': 'Acil', 'createdAt': '2026-09-01T10:00:00Z'}
+          {'id': 'tag-1', 'name': 'Acil', 'createdAt': '2026-09-01T10:00:00Z'},
         ],
         'sharedWith': [],
       };
@@ -270,4 +274,3 @@ void main() {
     });
   });
 }
-

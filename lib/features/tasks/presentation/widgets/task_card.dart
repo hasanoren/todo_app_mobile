@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/app_date_format.dart';
 import '../../data/models/todo_item_response_dto.dart';
 import 'priority_badge.dart';
-import '../../../tags/data/models/tag_response_dto.dart';
-import '../../../tags/presentation/screens/tagged_tasks_screen.dart';
-import '../../../tags/presentation/widgets/tag_chip.dart';
 
 class TaskCard extends StatelessWidget {
   final TodoItemResponseDto task;
@@ -71,11 +68,7 @@ class TaskCard extends StatelessWidget {
                       ),
                     ),
                     child: isCompleted
-                        ? const Icon(
-                            Icons.check,
-                            size: 16,
-                            color: Colors.white,
-                          )
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -90,8 +83,9 @@ class TaskCard extends StatelessWidget {
                       task.title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        decoration:
-                            isCompleted ? TextDecoration.lineThrough : null,
+                        decoration: isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
                         color: isCompleted
                             ? Colors.grey.shade500
                             : theme.textTheme.titleMedium?.color,
@@ -196,27 +190,6 @@ class TaskCard extends StatelessWidget {
                               ],
                             ),
                           ),
-
-                        ...task.tags.map(
-                          (tag) => TagChip(
-                            name: tag.name,
-                            isSmall: true,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => TaggedTasksScreen(
-                                    tag: TagResponseDto(
-                                      id: tag.id,
-                                      name: tag.name,
-                                      createdAt: tag.createdAt,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
                       ],
                     ),
                   ],
@@ -271,4 +244,3 @@ class TaskCard extends StatelessWidget {
     );
   }
 }
-

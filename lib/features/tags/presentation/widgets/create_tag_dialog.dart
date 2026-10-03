@@ -59,7 +59,9 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
         final isCreating = state is SystemTagsLoaded && state.isCreating;
 
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Row(
             children: [
               Icon(Icons.label_outline, color: Colors.indigo),
@@ -119,4 +121,3 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
     );
   }
 }
-

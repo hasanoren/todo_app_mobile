@@ -1,6 +1,7 @@
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
 import 'package:todo_app_mobile/features/tasks/data/models/paginated_todo_items_response_dto.dart';
+import 'package:todo_app_mobile/features/tasks/data/models/todo_item_response_dto.dart';
 import '../../domain/repositories/tags_repository.dart';
 import '../datasources/tags_remote_data_source.dart';
 import '../models/create_tag_request.dart';
@@ -39,7 +40,7 @@ class TagsRepositoryImpl implements TagsRepository {
   }
 
   @override
-  Future<PaginatedTodoItemsResponseDto> getTasksByTag(
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTasksByTag(
     String tagId, {
     int page = 1,
     int pageSize = 20,
@@ -79,9 +80,7 @@ class TagsRepositoryImpl implements TagsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Etiket göreve eklenemedi.',
-      );
+      throw const NetworkFailure(message: 'Etiket göreve eklenemedi.');
     }
   }
 
@@ -92,9 +91,7 @@ class TagsRepositoryImpl implements TagsRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Etiket görevden kaldırılamadı.',
-      );
+      throw const NetworkFailure(message: 'Etiket görevden kaldırılamadı.');
     }
   }
 }

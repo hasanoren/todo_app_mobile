@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../data/models/tag_response_dto.dart';
 
 abstract class TaskTagsState extends Equatable {
@@ -43,8 +44,9 @@ class TaskTagsLoaded extends TaskTagsState {
       detachingTagId: clearDetachingTagId
           ? null
           : (detachingTagId ?? this.detachingTagId),
-      errorMessage:
-          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -60,4 +62,3 @@ class TaskTagsFailure extends TaskTagsState {
   @override
   List<Object?> get props => [message];
 }
-

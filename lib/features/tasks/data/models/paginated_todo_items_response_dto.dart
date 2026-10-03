@@ -1,8 +1,3 @@
-import 'todo_item_response_dto.dart';
-
-typedef PaginatedTodoItemsResponseDto
-    = PaginatedResponseDto<TodoItemResponseDto>;
-
 class PaginatedResponseDto<T> {
   final List<T> items;
   final int page;
@@ -38,4 +33,3 @@ class PaginatedResponseDto<T> {
     );
   }
 }
-
