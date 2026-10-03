@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 import 'core/storage/secure_storage_service.dart';
 import 'core/network/dio_client.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
@@ -49,7 +48,7 @@ void main() async {
   // Wait for state to not be initial before running app if possible
   // In a real app we'd use a splash screen for this, but for now we just runApp
 
-  final appRouter = AppRouter(authBloc);
+  final appRouter = AppRouter(authBloc, authRepo);
 
   runApp(
     MyApp(

@@ -23,10 +23,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     emit(RegisterLoading(email: state.email, password: state.password));
 
     try {
-      await _authRepository.register(
-        state.email,
-        state.password,
-      );
+      await _authRepository.register(state.email, state.password);
       emit(const RegisterSuccess());
     } on ServerFailure catch (e) {
       String? emailError;

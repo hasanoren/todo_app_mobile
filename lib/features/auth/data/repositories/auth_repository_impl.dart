@@ -7,6 +7,8 @@ import '../models/login_request.dart';
 import '../models/login_2fa_request.dart';
 import '../models/refresh_token_request.dart';
 import '../models/logout_request.dart';
+import '../models/forgot_password_request.dart';
+import '../models/reset_password_request.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
@@ -175,5 +177,34 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     return null;
+  }
+
+  @override
+  Future<String> forgotPassword(String email) async {
+    try {
+      final request = ForgotPasswordRequest(email: email);
+      final response = await _remoteDataSource.forgotPassword(request);
+      return response.message;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  @override
+  Future<String> resetPassword(String token, String newPassword) async {
+    try {
+      final request = ResetPasswordRequest(
+        token: token,
+        newPassword: newPassword,
+      );
+      final response = await _remoteDataSource.resetPassword(request);
+      return response.message;
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (e) {
+      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
   }
 }

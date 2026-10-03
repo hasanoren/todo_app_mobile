@@ -9,16 +9,24 @@ import 'route_names.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
 
-// Real screens
+// Screens
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/two_factor_screen.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
+
+// Cubits
+import '../../features/auth/presentation/cubits/forgot_password_cubit.dart';
+import '../../features/auth/presentation/cubits/reset_password_cubit.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
+  final AuthRepository authRepository;
 
-  AppRouter(this.authBloc);
+  AppRouter(this.authBloc, this.authRepository);
 
   late final GoRouter router = GoRouter(
     initialLocation: RouteNames.home,
@@ -30,13 +38,28 @@ class AppRouter {
       final bool isGoingToRegister =
           state.matchedLocation == RouteNames.register;
       final bool isGoingTo2FA = state.matchedLocation == RouteNames.login2fa;
+      final bool isGoingToForgotPassword =
+          state.matchedLocation == RouteNames.forgotPassword;
+      final bool isGoingToResetPassword =
+          state.matchedLocation == RouteNames.resetPassword;
 
       if (authState is AuthInitial) {
         return null; // Wait for initialization (maybe show splash)
       }
 
+      // Check empty token for reset password
+      if (isGoingToResetPassword) {
+        final token = state.uri.queryParameters['token'];
+        if (token == null || token.trim().isEmpty) {
+          return RouteNames.login;
+        }
+      }
+
       if (authState is Unauthenticated) {
-        if (!isGoingToLogin && !isGoingToRegister) {
+        if (!isGoingToLogin &&
+            !isGoingToRegister &&
+            !isGoingToForgotPassword &&
+            !isGoingToResetPassword) {
           return RouteNames.login;
         }
       }
@@ -48,7 +71,11 @@ class AppRouter {
       }
 
       if (authState is Authenticated) {
-        if (isGoingToLogin || isGoingToRegister || isGoingTo2FA) {
+        if (isGoingToLogin ||
+            isGoingToRegister ||
+            isGoingTo2FA ||
+            isGoingToForgotPassword ||
+            isGoingToResetPassword) {
           return RouteNames.home;
         }
       }
@@ -84,6 +111,29 @@ class AppRouter {
       GoRoute(
         path: RouteNames.login2fa,
         builder: (context, state) => const TwoFactorScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.forgotPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => ForgotPasswordCubit(authRepository),
+          child: const ForgotPasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.resetPassword,
+        builder: (context, state) {
+          final rawToken = state.uri.queryParameters['token'] ?? '';
+          final decodedToken = rawToken.isNotEmpty
+              ? Uri.decodeComponent(rawToken)
+              : '';
+          final email = state.uri.queryParameters['email'];
+
+          return BlocProvider(
+            create: (_) =>
+                ResetPasswordCubit(authRepository, token: decodedToken),
+            child: ResetPasswordScreen(email: email),
+          );
+        },
       ),
     ],
   );

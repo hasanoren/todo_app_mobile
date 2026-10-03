@@ -8,6 +8,9 @@ import '../models/login_request.dart';
 import '../models/login_2fa_request.dart';
 import '../models/refresh_token_request.dart';
 import '../models/logout_request.dart';
+import '../models/forgot_password_request.dart';
+import '../models/reset_password_request.dart';
+import '../models/auth_message_response_dto.dart';
 
 // Note: Other models will be imported as needed in future tasks
 
@@ -17,6 +20,8 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponseDto> login2Fa(Login2FaRequest request);
   Future<AuthResponseDto> refresh(RefreshTokenRequest request);
   Future<void> logout(LogoutRequest request);
+  Future<AuthMessageResponseDto> forgotPassword(ForgotPasswordRequest request);
+  Future<AuthMessageResponseDto> resetPassword(ResetPasswordRequest request);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -131,6 +136,60 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       // Logout might fail if token is already expired, we generally ignore this
       // but we can throw if we want strict handling.
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<AuthMessageResponseDto> forgotPassword(
+    ForgotPasswordRequest request,
+  ) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.forgotPassword,
+        data: request.toJson(),
+      );
+
+      return AuthMessageResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromJson(
+          e.response!.data is Map<String, dynamic> ? e.response!.data : {},
+          e.response!.statusCode ?? 500,
+        );
+      } else {
+        throw ApiException(
+          statusCode: 500,
+          title: 'Network Error',
+          detail: e.message ?? 'Unknown error occurred.',
+        );
+      }
+    }
+  }
+
+  @override
+  Future<AuthMessageResponseDto> resetPassword(
+    ResetPasswordRequest request,
+  ) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.resetPassword,
+        data: request.toJson(),
+      );
+
+      return AuthMessageResponseDto.fromJson(response.data);
+    } on DioException catch (e) {
       if (e.response != null) {
         throw ApiException.fromJson(
           e.response!.data is Map<String, dynamic> ? e.response!.data : {},

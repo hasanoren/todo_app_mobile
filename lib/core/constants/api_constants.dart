@@ -8,6 +8,8 @@ class ApiConstants {
   static const String login2fa = '/api/Auth/login-2fa';
   static const String refresh = '/api/Auth/refresh';
   static const String logout = '/api/Auth/logout';
+  static const String forgotPassword = '/api/Auth/forgot-password';
+  static const String resetPassword = '/api/Auth/reset-password';
 
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;

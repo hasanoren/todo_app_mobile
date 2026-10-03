@@ -9,10 +9,10 @@
 
 **Purpose**: Define endpoints, routes, and platform deep link intent configurations.
 
-- [ ] T001 Add `forgotPassword` (`/api/Auth/forgot-password`) and `resetPassword` (`/api/Auth/reset-password`) constants in `lib/core/constants/api_constants.dart`
-- [ ] T002 [P] Add `forgotPassword` (`/forgot-password`) and `resetPassword` (`/reset-password`) route constants in `lib/core/router/route_names.dart`
-- [ ] T003 [P] Add deep link intent filters for `todoapp://reset-password` and `https://todoapp-api-gudhgje6bvfqg3ev.centralus-01.azurewebsites.net/reset-password` in `android/app/src/main/AndroidManifest.xml`
-- [ ] T004 [P] Add custom URL scheme `todoapp` in `ios/Runner/Info.plist` under `CFBundleURLTypes`
+- [x] T001 Add `forgotPassword` (`/api/Auth/forgot-password`) and `resetPassword` (`/api/Auth/reset-password`) constants in `lib/core/constants/api_constants.dart`
+- [x] T002 [P] Add `forgotPassword` (`/forgot-password`) and `resetPassword` (`/reset-password`) route constants in `lib/core/router/route_names.dart`
+- [x] T003 [P] Add deep link intent filters for `todoapp://reset-password` and `https://todoapp-api-gudhgje6bvfqg3ev.centralus-01.azurewebsites.net/reset-password` in `android/app/src/main/AndroidManifest.xml`
+- [x] T004 [P] Add custom URL scheme `todoapp` in `ios/Runner/Info.plist` under `CFBundleURLTypes`
 
 ---
 
@@ -20,13 +20,13 @@
 
 **Purpose**: Core DTOs, repository interfaces, and data sources required by all user stories.
 
-- [ ] T005 [P] Create `ForgotPasswordRequest` model with `email` field in `lib/features/auth/data/models/forgot_password_request.dart`
-- [ ] T006 [P] Create `ResetPasswordRequest` model with `token` and `newPassword` fields in `lib/features/auth/data/models/reset_password_request.dart`
-- [ ] T007 [P] Create `AuthMessageResponseDto` model with `message` string field in `lib/features/auth/data/models/auth_message_response_dto.dart`
-- [ ] T008 Add `forgotPassword(String email)` and `resetPassword(String token, String newPassword)` method signatures in `lib/features/auth/domain/repositories/auth_repository.dart`
-- [ ] T009 Implement `forgotPassword` and `resetPassword` API calls in `lib/features/auth/data/datasources/auth_remote_data_source.dart`
-- [ ] T010 Implement `forgotPassword` and `resetPassword` methods with RFC 7807 `ApiException` to `ServerFailure` mapping in `lib/features/auth/data/repositories/auth_repository_impl.dart`
-- [ ] T011 Register `/forgot-password` and `/reset-password` route configurations in `lib/core/router/app_router.dart`
+- [x] T005 [P] Create `ForgotPasswordRequest` model with `email` field in `lib/features/auth/data/models/forgot_password_request.dart`
+- [x] T006 [P] Create `ResetPasswordRequest` model with `token` and `newPassword` fields in `lib/features/auth/data/models/reset_password_request.dart`
+- [x] T007 [P] Create `AuthMessageResponseDto` model with `message` string field in `lib/features/auth/data/models/auth_message_response_dto.dart`
+- [x] T008 Add `forgotPassword(String email)` and `resetPassword(String token, String newPassword)` method signatures in `lib/features/auth/domain/repositories/auth_repository.dart`
+- [x] T009 Implement `forgotPassword` and `resetPassword` API calls in `lib/features/auth/data/datasources/auth_remote_data_source.dart`
+- [x] T010 Implement `forgotPassword` and `resetPassword` methods with RFC 7807 `ApiException` to `ServerFailure` mapping in `lib/features/auth/data/repositories/auth_repository_impl.dart`
+- [x] T011 Register `/forgot-password` and `/reset-password` route configurations in `lib/core/router/app_router.dart`
 
 ---
 
@@ -36,10 +36,10 @@
 
 **Independent Test**: Navigate to `/forgot-password`, enter valid email, tap "Sıfırlama Bağlantısı Gönder". Observe success message and 60-second visual countdown on the button.
 
-- [ ] T012 [P] [US1] Create `ForgotPasswordState` with `email`, `emailError`, `cooldownSeconds`, `successMessage`, `generalError` in `lib/features/auth/presentation/cubits/forgot_password_state.dart`
-- [ ] T013 [US1] Create `ForgotPasswordCubit` with email validation, 60s `Timer.periodic` cooldown timer, and submit handling in `lib/features/auth/presentation/cubits/forgot_password_cubit.dart`
-- [ ] T014 [US1] Implement `ForgotPasswordScreen` with email field, 60s countdown on submit button, and generic info message in `lib/features/auth/presentation/screens/forgot_password_screen.dart`
-- [ ] T015 [US1] Add "Şifremi Unuttum" link button to `lib/features/auth/presentation/screens/login_screen.dart` navigating to `RouteNames.forgotPassword`
+- [x] T012 [P] [US1] Create `ForgotPasswordState` with `email`, `emailError`, `cooldownSeconds`, `successMessage`, `generalError` in `lib/features/auth/presentation/cubits/forgot_password_state.dart`
+- [x] T013 [US1] Create `ForgotPasswordCubit` with email validation, 60s `Timer.periodic` cooldown timer, and submit handling in `lib/features/auth/presentation/cubits/forgot_password_cubit.dart`
+- [x] T014 [US1] Implement `ForgotPasswordScreen` with email field, 60s countdown on submit button, and generic info message in `lib/features/auth/presentation/screens/forgot_password_screen.dart`
+- [x] T015 [US1] Add "Şifremi Unuttum" link button to `lib/features/auth/presentation/screens/login_screen.dart` navigating to `RouteNames.forgotPassword`
 
 ---
 
@@ -49,8 +49,8 @@
 
 **Independent Test**: Trigger deep link via ADB command `adb shell am start -a android.intent.action.VIEW -d "todoapp://reset-password?token=TEST_TOKEN_123" com.example.todo_app_mobile`. Verify app opens and lands on `/reset-password` with token populated.
 
-- [ ] T016 [US2] Implement token query parameter extraction and character-safe `Uri.decodeComponent` in `lib/core/router/app_router.dart` for `/reset-password`
-- [ ] T017 [US2] Add empty or malformed token guard in `lib/core/router/app_router.dart` redirecting to `/login` with an error SnackBar if token is absent
+- [x] T016 [US2] Implement token query parameter extraction and character-safe `Uri.decodeComponent` in `lib/core/router/app_router.dart` for `/reset-password`
+- [x] T017 [US2] Add empty or malformed token guard in `lib/core/router/app_router.dart` redirecting to `/login` with an error SnackBar if token is absent
 
 ---
 
@@ -60,11 +60,11 @@
 
 **Independent Test**: On `/reset-password`, enter valid matching passwords, submit. Verify password is reset, redirected to `/login` with email pre-filled and success SnackBar shown.
 
-- [ ] T018 [P] [US3] Create `ResetPasswordState` with `token`, `newPassword`, `confirmPassword`, field errors, `generalError` in `lib/features/auth/presentation/cubits/reset_password_state.dart`
-- [ ] T019 [US3] Create `ResetPasswordCubit` with password validation regex (min 8 chars, 1 uppercase, 1 digit, 1 special char), match check, and submit logic in `lib/features/auth/presentation/cubits/reset_password_cubit.dart`
-- [ ] T020 [US3] Implement `ResetPasswordScreen` UI with password fields, real-time validation error display, and submit button in `lib/features/auth/presentation/screens/reset_password_screen.dart`
-- [ ] T021 [US3] Implement success navigation in `ResetPasswordScreen` redirecting to `RouteNames.login` passing `email` in extra payload
-- [ ] T022 [US3] Update `LoginScreen` to extract `extra['email']` and populate `LoginCubit` state on arrival in `lib/features/auth/presentation/screens/login_screen.dart`
+- [x] T018 [P] [US3] Create `ResetPasswordState` with `token`, `newPassword`, `confirmPassword`, field errors, `generalError` in `lib/features/auth/presentation/cubits/reset_password_state.dart`
+- [x] T019 [US3] Create `ResetPasswordCubit` with password validation regex (min 8 chars, 1 uppercase, 1 digit, 1 special char), match check, and submit logic in `lib/features/auth/presentation/cubits/reset_password_cubit.dart`
+- [x] T020 [US3] Implement `ResetPasswordScreen` UI with password fields, real-time validation error display, and submit button in `lib/features/auth/presentation/screens/reset_password_screen.dart`
+- [x] T021 [US3] Implement success navigation in `ResetPasswordScreen` redirecting to `RouteNames.login` passing `email` in extra payload
+- [x] T022 [US3] Update `LoginScreen` to extract `extra['email']` and populate `LoginCubit` state on arrival in `lib/features/auth/presentation/screens/login_screen.dart`
 
 ---
 
@@ -74,8 +74,8 @@
 
 **Independent Test**: Submit reset request with invalid token. Verify 400 Problem Details error is displayed and "Yeni Bağlantı İste" button redirects to `/forgot-password`.
 
-- [ ] T023 [US4] Map expired/invalid token server errors in `ResetPasswordCubit` to `ResetPasswordFailure` state with actionable message in `lib/features/auth/presentation/cubits/reset_password_cubit.dart`
-- [ ] T024 [US4] Display "Yeni Bağlantı İste" action button in `ResetPasswordScreen` when token error occurs, redirecting user to `RouteNames.forgotPassword` in `lib/features/auth/presentation/screens/reset_password_screen.dart`
+- [x] T023 [US4] Map expired/invalid token server errors in `ResetPasswordCubit` to `ResetPasswordFailure` state with actionable message in `lib/features/auth/presentation/cubits/reset_password_cubit.dart`
+- [x] T024 [US4] Display "Yeni Bağlantı İste" action button in `ResetPasswordScreen` when token error occurs, redirecting user to `RouteNames.forgotPassword` in `lib/features/auth/presentation/screens/reset_password_screen.dart`
 
 ---
 
@@ -83,9 +83,9 @@
 
 **Purpose**: Format code, analyze for static issues, and execute validation scenarios.
 
-- [ ] T025 [P] Clean up unused imports and run `dart format .` on the entire project
-- [ ] T026 Run `flutter analyze` to ensure zero errors and zero warnings
-- [ ] T027 Execute manual validation scenarios in `specs/002-password-recovery/quickstart.md` (Forgot password cooldown & ADB deep link test)
+- [x] T025 [P] Clean up unused imports and run `dart format .` on the entire project
+- [x] T026 Run `flutter analyze` to ensure zero errors and zero warnings
+- [x] T027 Execute manual validation scenarios in `specs/002-password-recovery/quickstart.md` (Forgot password cooldown & ADB deep link test)
 
 ---
 
