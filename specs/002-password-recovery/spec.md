@@ -7,6 +7,15 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-10-03
+- Q: E-posta ile gönderilen şifre sıfırlama bağlantısını mobil uygulamanın yakalaması için hangi derin bağlantı (deep link) URL şeması kullanılmalıdır? → A: Hibrit yaklaşım: Hem özel URL şeması (`todoapp://reset-password?token=...`) hem de Evrensel/App bağlantıları (`https://.../reset-password?token=...`) desteklenecektir.
+- Q: Şifre sıfırlama işlemi başarıyla tamamlandıktan sonra kullanıcı uygulamada nasıl bir akışla karşılanmalıdır? → A: Başarı bildirimiyle Giriş ekranına yönlendirilecek ve e-posta adresi giriş formunda önceden doldurulmuş (pre-filled) olarak sunulacaktır.
+- Q: Şifremi Unuttum ekranında bağlantı talep edildikten sonra kullanıcı arayüzünde yeniden gönderim (resend) ve API hız sınırı (dakikada 2 istek) yönetimi nasıl olmalıdır? → A: İstek gönderildikten sonra aynı ekranda kalınacak; buton üzerinde 60 saniyelik görsel geri sayım sayacı (cooldown timer) başlatılarak buton kilitlenecek ve süre bitiminde "Tekrar Gönder" olarak aktifleşecektir.
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Şifremi Unuttum Bağlantısı İsteme (Priority: P1)
@@ -20,9 +29,9 @@ Kayıtlı bir kullanıcı şifresini unuttuğunda, giriş ekranındaki "Şifremi
 **Acceptance Scenarios**:
 
 1. **Given** kullanıcı giriş ekranında, **When** "Şifremi Unuttum" bağlantısına tıkladığında, **Then** e-posta giriş alanının ve "Sıfırlama Bağlantısı Gönder" butonunun bulunduğu şifre kurtarma ekranına yönlendirilir.
-2. **Given** kullanıcı şifremi unuttum ekranında, **When** geçerli formatta bir e-posta adresi girip gönderdiğinde, **Then** sistem "Eğer bu e-posta adresi kayıtlıysa, şifre sıfırlama bağlantısı gönderilmiştir." mesajını gösterir ve kullanıcıyı bilgilendirir.
+2. **Given** kullanıcı şifremi unuttum ekranında, **When** geçerli formatta bir e-posta adresi girip gönderdiğinde, **Then** sistem "Eğer bu e-posta adresi kayıtlıysa, şifre sıfırlama bağlantısı gönderilmiştir." mesajını gösterir, buton üzerinde 60 saniyelik geri sayım sayacı başlatarak butonu geçici olarak devre dışı bırakır.
 3. **Given** kullanıcı şifremi unuttum ekranında, **When** geçersiz veya boş bir e-posta adresi girdiğinde, **Then** buton pasif kalır veya istemci tarafında "Geçerli bir e-posta adresi giriniz" uyarı mesajı gösterilir.
-4. **Given** kullanıcı kısa süre içinde mükerrer talep gönderdiğinde (dakikada 2'den fazla), **Then** sistem hız sınırı aşıldığına dair kullanıcı dostu bir bekleme uyarısı gösterir.
+4. **Given** sıfırlama talebi gönderilmiş ve 60 saniyelik sayaç dolmuş, **When** kullanıcı hala bağlantıyı almadıysa, **Then** buton "Tekrar Gönder" olarak aktifleşir ve kullanıcı yeni bir talep gönderebilir.
 
 ---
 
@@ -51,7 +60,7 @@ Geçerli bir belirteçle şifre sıfırlama ekranına ulaşan kullanıcı, güve
 
 **Acceptance Scenarios**:
 
-1. **Given** kullanıcı yeni şifre belirleme ekranında, **When** kurallara uygun şifre ve aynı şifre tekrarını girip onayladığında, **Then** şifre başarıyla güncellenir, "Şifreniz başarıyla değiştirildi. Yeni şifrenizle giriş yapabilirsiniz." mesajı gösterilir ve kullanıcı giriş ekranına aktarılır.
+1. **Given** kullanıcı yeni şifre belirleme ekranında, **When** kurallara uygun şifre ve aynı şifre tekrarını girip onayladığında, **Then** şifre başarıyla güncellenir, "Şifreniz başarıyla değiştirildi. Yeni şifrenizle giriş yapabilirsiniz." mesajı gösterilir ve kullanıcı giriş ekranına aktarılır; giriş ekranında e-posta alanı önceden doldurulmuş olarak gelir ve şifre alanına odaklanılır.
 2. **Given** kullanıcı yeni şifre belirleme ekranında, **When** şifre kurallarına uymayan (8 karakterden kısa, büyük harf/rakam/özel karakter eksik) bir değer girdiğinde, **Then** ilgili kural eksikliği alan bazında anlık olarak gösterilir ve işlem engellenir.
 3. **Given** kullanıcı yeni şifre belirleme ekranında, **When** şifre ve şifre tekrarı alanları birbiriyle eşleşmediğinde, **Then** "Şifreler eşleşmiyor" uyarısı gösterilir.
 
@@ -88,14 +97,14 @@ Kullanıcı süresi dolmuş veya daha önce kullanılmış bir bağlantıya tık
 - **FR-001**: Sistem, giriş ekranında kullanıcıya "Şifremi Unuttum" ekranına giden açık bir erişim noktası sunmalıdır.
 - **FR-002**: Sistem, şifre sıfırlama talebi için kullanıcının e-posta adresini almalı ve e-posta formatını doğrulamalıdır.
 - **FR-003**: Sistem, e-posta adresi kayıtlı olsun veya olmasın kullanıcıya aynı jenerik başarı mesajını göstererek kullanıcı varlığı tespiti (user enumeration) yapılmasını engellemelidir.
-- **FR-004**: Sistem, şifremi unuttum isteklerinde sunucu tarafı hız sınırına (dakikada 2 istek) uyulmadığı durumlarda kullanıcıya bilgilendirici bekleme mesajı göstermelidir.
-- **FR-005**: Sistem, mobil işletim sisteminden gelen şifre sıfırlama derin bağlantılarını (deep links) dinlemeli ve yakalamalıdır.
+- **FR-004**: Sistem, şifre sıfırlama bağlantısı gönderildikten sonra butonu 60 saniyelik görsel geri sayım sayacıyla kilitlemeli, sunucu hız sınırını (dakikada 2 istek) istemci tarafında proaktif olarak yönetmeli ve süre bitiminde tekrar gönderime izin vermelidir.
+- **FR-005**: Sistem, hem özel URL şemasından (`todoapp://reset-password?token=...`) hem de evrensel web bağlantılarından (`https://.../reset-password?token=...`) gelen şifre sıfırlama derin bağlantılarını dinlemeli ve yakalamalıdır.
 - **FR-006**: Sistem, derin bağlantı içerisindeki sıfırlama belirteci (`token`) parametresini ayrıştırmalı ve URL kodlamasını (URL-decode) doğru şekilde çözmelidir.
 - **FR-007**: Sistem, belirteç parametresi eksik veya geçersiz formatta olan derin bağlantılarda kullanıcıyı bilgilendirerek güvenli bir şekilde giriş ekranına yönlendirmelidir.
 - **FR-008**: Sistem, yeni şifre ekranında "Yeni Şifre" ve "Yeni Şifre Tekrarı" alanlarını sunmalı ve şifrelerin birebir eşleştiğini doğrulamalıdır.
 - **FR-009**: Sistem, yeni şifrenin asgari güvenlik kriterlerine (en az 8 karakter, en az 1 büyük harf, en az 1 rakam ve en az 1 özel karakter) uyduğunu istemci tarafında doğrulamalıdır.
 - **FR-010**: Sistem, çözümlenen belirteç ve yeni şifre ile şifre sıfırlama isteğini sunucuya göndermelidir.
-- **FR-011**: Sistem, şifre sıfırlama başarılı olduğunda kullanıcıya açık bir başarı mesajı gösterip giriş ekranına yönlendirmelidir.
+- **FR-011**: Sistem, şifre sıfırlama başarılı olduğunda kullanıcıya açık bir başarı mesajı gösterip giriş ekranına yönlendirmeli ve kullanıcının e-posta adresini giriş formunda otomatik doldurmalıdır.
 - **FR-012**: Sistem, belirtecin geçersiz veya süresi dolmuş olması durumunda kullanıcıya anlamlı bir hata mesajı ile birlikte "Yeni Bağlantı İste" seçeneği sunmalıdır.
 
 ---

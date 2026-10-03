@@ -31,5 +31,9 @@
 
 ## Notes
 
-- All 16 quality checklist items passed on iteration 1.
-- The feature is ready for planning (`/speckit-plan`) or interactive clarification (`/speckit-clarify`) if user desires further customization.
+- All 16 quality checklist items passed.
+- Clarification session completed with 3 critical decisions encoded into spec.md:
+  1. Supported URL schemes: Hybrid (Custom Scheme `todoapp://` and Universal Links `https://...`).
+  2. Post-reset user flow: Redirect to Login screen with pre-filled email.
+  3. Resend & rate limit UX: 60-second visual countdown cooldown timer.
+- Feature is 100% ready for technical planning (`/speckit-plan`).
