@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/two_factor_challenge.dart';
@@ -15,6 +17,7 @@ import '../models/two_factor_enable_response_dto.dart';
 import '../models/user_profile_response_dto.dart';
 import '../models/change_password_request.dart';
 import '../models/delete_account_request.dart';
+import '../../../../core/constants/storage_keys.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
@@ -68,10 +71,33 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
+      String finalEmail = response.email ?? email;
+      String finalUserId = response.userId ?? '';
+      final token = response.token ?? '';
+      if ((finalEmail.isEmpty || finalUserId.isEmpty) && token.isNotEmpty) {
+        final claims = _decodeJwtPayload(token);
+        if (claims != null) {
+          if (finalEmail.isEmpty) {
+            final emailClaim = claims['email'] ??
+                claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+            if (emailClaim is String && emailClaim.isNotEmpty) {
+              finalEmail = emailClaim;
+            }
+          }
+          if (finalUserId.isEmpty) {
+            final sub = claims['sub'] ??
+                claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+            if (sub is String && sub.isNotEmpty) {
+              finalUserId = sub;
+            }
+          }
+        }
+      }
+
       final session = AuthSession(
-        userId: response.userId ?? '',
-        email: response.email ?? email,
-        accessToken: response.token ?? '',
+        userId: finalUserId,
+        email: finalEmail,
+        accessToken: token,
         refreshToken: response.refreshToken ?? '',
         expiresAt: DateTime.now().add(const Duration(minutes: 55)),
       );
@@ -101,10 +127,33 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final response = await _remoteDataSource.login2Fa(request);
 
+      String finalEmail = response.email ?? '';
+      String finalUserId = response.userId ?? '';
+      final token = response.token ?? '';
+      if ((finalEmail.isEmpty || finalUserId.isEmpty) && token.isNotEmpty) {
+        final claims = _decodeJwtPayload(token);
+        if (claims != null) {
+          if (finalEmail.isEmpty) {
+            final emailClaim = claims['email'] ??
+                claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+            if (emailClaim is String && emailClaim.isNotEmpty) {
+              finalEmail = emailClaim;
+            }
+          }
+          if (finalUserId.isEmpty) {
+            final sub = claims['sub'] ??
+                claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+            if (sub is String && sub.isNotEmpty) {
+              finalUserId = sub;
+            }
+          }
+        }
+      }
+
       final session = AuthSession(
-        userId: response.userId ?? '',
-        email: response.email ?? '', // Email ideally preserved or fetched
-        accessToken: response.token ?? '',
+        userId: finalUserId,
+        email: finalEmail,
+        accessToken: token,
         refreshToken: response.refreshToken ?? '',
         expiresAt: DateTime.now().add(const Duration(minutes: 55)),
       );
@@ -116,6 +165,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: session.email,
         expiresAt: session.expiresAt,
       );
+      await _secureStorage.saveTwoFactorEnabled(true);
 
       return session;
     } on ApiException catch (e) {
@@ -218,11 +268,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> getTwoFactorStatus() async {
     try {
       final profile = await _remoteDataSource.getProfile();
+      await _secureStorage.saveTwoFactorEnabled(profile.isTwoFactorEnabled);
       return profile.isTwoFactorEnabled;
-    } on ApiException catch (e) {
-      throw ServerFailure(message: e.detail, validationErrors: e.errors);
-    } catch (e) {
-      throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    } catch (_) {
+      return await _secureStorage.getTwoFactorEnabled();
     }
   }
 
@@ -243,6 +292,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final request = TwoFactorVerifyRequest(code: code);
       final response = await _remoteDataSource.verify2fa(request);
+      await _secureStorage.saveTwoFactorEnabled(true);
       return response.message;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
@@ -256,6 +306,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final request = TwoFactorDisableRequest(code: code);
       final response = await _remoteDataSource.disable2fa(request);
+      await _secureStorage.saveTwoFactorEnabled(false);
       return response.message;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
@@ -268,11 +319,80 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserProfileResponseDto> getProfile() async {
     try {
       final profile = await _remoteDataSource.getProfile();
+      await _secureStorage.saveTwoFactorEnabled(profile.isTwoFactorEnabled);
       return profile;
     } on ApiException catch (e) {
+      if (e.statusCode == 405 || e.statusCode == 404) {
+        final localProfile = await _buildLocalProfile();
+        if (localProfile != null) {
+          return localProfile;
+        }
+      }
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (e) {
+      final localProfile = await _buildLocalProfile();
+      if (localProfile != null) {
+        return localProfile;
+      }
       throw const NetworkFailure(message: 'Bir ağ hatası oluştu.');
+    }
+  }
+
+  Future<UserProfileResponseDto?> _buildLocalProfile() async {
+    String? email = await _secureStorage.read(StorageKeys.authEmail);
+    String? userId = await _secureStorage.read(StorageKeys.authUserId);
+    final token = await _secureStorage.getAccessToken();
+
+    String role = 'User';
+    String finalUserId = userId ?? '';
+    String finalEmail = email ?? '';
+
+    if (token != null) {
+      final claims = _decodeJwtPayload(token);
+      if (claims != null) {
+        final roleClaim = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+            claims['role'];
+        if (roleClaim is String && roleClaim.isNotEmpty) {
+          role = roleClaim;
+        }
+        final sub = claims['sub'] ??
+            claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+        if (sub is String && sub.isNotEmpty && finalUserId.isEmpty) {
+          finalUserId = sub;
+          await _secureStorage.write(StorageKeys.authUserId, sub);
+        }
+        final emailClaim = claims['email'] ??
+            claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+        if (emailClaim is String && emailClaim.isNotEmpty && finalEmail.isEmpty) {
+          finalEmail = emailClaim;
+          await _secureStorage.write(StorageKeys.authEmail, emailClaim);
+        }
+      }
+    }
+
+    if (finalEmail.isEmpty && finalUserId.isEmpty) {
+      return null;
+    }
+
+    final isTwoFactorEnabled = await _secureStorage.getTwoFactorEnabled();
+
+    return UserProfileResponseDto(
+      userId: finalUserId,
+      email: finalEmail,
+      role: role,
+      isTwoFactorEnabled: isTwoFactorEnabled,
+    );
+  }
+
+  Map<String, dynamic>? _decodeJwtPayload(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+      final normalized = base64Url.normalize(parts[1]);
+      final payloadString = utf8.decode(base64Url.decode(normalized));
+      return jsonDecode(payloadString) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
     }
   }
 

@@ -4,4 +4,5 @@ class StorageKeys {
   static const String authUserId = 'auth_user_id';
   static const String authEmail = 'auth_email';
   static const String authTokenExpiresAt = 'auth_token_expires_at';
+  static const String authTwoFactorEnabled = 'auth_two_factor_enabled';
 }

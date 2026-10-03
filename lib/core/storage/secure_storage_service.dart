@@ -43,11 +43,21 @@ class SecureStorageService {
   Future<String?> getAccessToken() => read(StorageKeys.authAccessToken);
   Future<String?> getRefreshToken() => read(StorageKeys.authRefreshToken);
 
+  Future<void> saveTwoFactorEnabled(bool isEnabled) async {
+    await write(StorageKeys.authTwoFactorEnabled, isEnabled.toString());
+  }
+
+  Future<bool> getTwoFactorEnabled() async {
+    final value = await read(StorageKeys.authTwoFactorEnabled);
+    return value == 'true';
+  }
+
   Future<void> clearAuthData() async {
     await delete(StorageKeys.authAccessToken);
     await delete(StorageKeys.authRefreshToken);
     await delete(StorageKeys.authUserId);
     await delete(StorageKeys.authEmail);
     await delete(StorageKeys.authTokenExpiresAt);
+    await delete(StorageKeys.authTwoFactorEnabled);
   }
 }
