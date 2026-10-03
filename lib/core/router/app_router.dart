@@ -28,11 +28,17 @@ import '../../features/auth/presentation/cubits/reset_password_cubit.dart';
 import '../../features/auth/presentation/cubits/profile_cubit.dart';
 import '../../features/auth/presentation/cubits/change_password_cubit.dart';
 
+// TodoLists
+import '../../features/todo_lists/domain/repositories/todo_lists_repository.dart';
+import '../../features/todo_lists/presentation/cubits/todo_lists_cubit.dart';
+import '../../features/todo_lists/presentation/screens/todo_lists_screen.dart';
+
 class AppRouter {
   final AuthBloc authBloc;
   final AuthRepository authRepository;
+  final TodoListsRepository todoListsRepository;
 
-  AppRouter(this.authBloc, this.authRepository);
+  AppRouter(this.authBloc, this.authRepository, this.todoListsRepository);
 
   late final GoRouter router = GoRouter(
     initialLocation: RouteNames.home,
@@ -105,6 +111,13 @@ class AppRouter {
             title: const Text('Ana Ekran'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.format_list_bulleted),
+                tooltip: 'Görev Listeleri',
+                onPressed: () {
+                  context.push(RouteNames.todoLists);
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.account_circle_outlined),
                 tooltip: 'Profil & Hesap',
                 onPressed: () {
@@ -127,7 +140,74 @@ class AppRouter {
               ),
             ],
           ),
-          body: const Center(child: Text('Todo Uygulaması Ana Ekranı (Dummy)')),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: InkWell(
+                      onTap: () => context.push(RouteNames.todoLists),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.format_list_bulleted,
+                                size: 32,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Görev Listeleri',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Listelerinizi oluşturun ve düzenleyin.',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right, size: 28),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.todoLists,
+        builder: (context, state) => BlocProvider(
+          create: (_) => TodoListsCubit(repository: todoListsRepository),
+          child: TodoListsScreen(repository: todoListsRepository),
         ),
       ),
       GoRoute(

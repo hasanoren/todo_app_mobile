@@ -9,10 +9,11 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'core/router/app_router.dart';
 
-// Providers for other screens
 import 'features/auth/presentation/cubits/login_cubit.dart';
 import 'features/auth/presentation/cubits/register_cubit.dart';
 import 'features/auth/presentation/cubits/two_factor_cubit.dart';
+import 'features/todo_lists/data/datasources/todo_lists_remote_data_source.dart';
+import 'features/todo_lists/data/repositories/todo_lists_repository_impl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,9 @@ void main() async {
   final authRemoteDS = AuthRemoteDataSourceImpl(dioClient.dio);
   final authRepo = AuthRepositoryImpl(authRemoteDS, secureStorage);
 
+  final todoListsRemoteDS = TodoListsRemoteDataSourceImpl(dio: dioClient.dio);
+  final todoListsRepo = TodoListsRepositoryImpl(remoteDataSource: todoListsRemoteDS);
+
   authBloc = AuthBloc(authRepository: authRepo);
   // Wait for initial session check
   authBloc.add(AppStarted());
@@ -48,7 +52,7 @@ void main() async {
   // Wait for state to not be initial before running app if possible
   // In a real app we'd use a splash screen for this, but for now we just runApp
 
-  final appRouter = AppRouter(authBloc, authRepo);
+  final appRouter = AppRouter(authBloc, authRepo, todoListsRepo);
 
   runApp(
     MyApp(
