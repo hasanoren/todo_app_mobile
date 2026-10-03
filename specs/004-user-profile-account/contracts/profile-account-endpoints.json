@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "User Profile & Account Management API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/Users/me": {
+      "get": {
+        "summary": "Get current user profile and account details",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": { "type": "string", "format": "uuid" },
+                    "email": { "type": "string" },
+                    "role": { "type": "string" },
+                    "isTwoFactorEnabled": { "type": "boolean" }
+                  },
+                  "required": ["userId", "email", "role", "isTwoFactorEnabled"]
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "summary": "Permanently delete account with password confirmation",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": { "type": "string" }
+                },
+                "required": ["password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Account successfully deleted" },
+          "400": { "description": "Invalid password" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/Auth/change-password": {
+      "put": {
+        "summary": "Change password for logged-in user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currentPassword": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                },
+                "required": ["currentPassword", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Password successfully changed" },
+          "400": { "description": "Current password incorrect or new password validation failure" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  }
+}
