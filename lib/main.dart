@@ -26,6 +26,9 @@ import 'features/tags/data/datasources/tags_remote_data_source.dart';
 import 'features/tags/data/repositories/tags_repository_impl.dart';
 import 'features/tags/domain/repositories/tags_repository.dart';
 import 'features/tags/presentation/cubits/system_tags_cubit.dart';
+import 'features/task_shares/data/datasources/task_shares_remote_data_source.dart';
+import 'features/task_shares/data/repositories/task_shares_repository_impl.dart';
+import 'features/task_shares/domain/repositories/task_shares_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,11 +68,17 @@ void main() async {
   );
 
   final subtasksRemoteDS = SubtasksRemoteDataSourceImpl(dio: dioClient.dio);
-  final subtasksRepo =
-      SubtasksRepositoryImpl(remoteDataSource: subtasksRemoteDS);
+  final subtasksRepo = SubtasksRepositoryImpl(
+    remoteDataSource: subtasksRemoteDS,
+  );
 
   final tagsRemoteDS = TagsRemoteDataSourceImpl(dio: dioClient.dio);
   final tagsRepo = TagsRepositoryImpl(remoteDataSource: tagsRemoteDS);
+
+  final taskSharesRemoteDS = TaskSharesRemoteDataSourceImpl(dio: dioClient.dio);
+  final taskSharesRepo = TaskSharesRepositoryImpl(
+    remoteDataSource: taskSharesRemoteDS,
+  );
 
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
@@ -85,6 +94,7 @@ void main() async {
       todoItemsRepo: todoItemsRepo,
       subtasksRepo: subtasksRepo,
       tagsRepo: tagsRepo,
+      taskSharesRepo: taskSharesRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -98,6 +108,7 @@ class MyApp extends StatelessWidget {
   final TodoItemsRepository todoItemsRepo;
   final SubtasksRepository subtasksRepo;
   final TagsRepository tagsRepo;
+  final TaskSharesRepository taskSharesRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -109,6 +120,7 @@ class MyApp extends StatelessWidget {
     required this.todoItemsRepo,
     required this.subtasksRepo,
     required this.tagsRepo,
+    required this.taskSharesRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -121,6 +133,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<TodoItemsRepository>.value(value: todoItemsRepo),
         RepositoryProvider<SubtasksRepository>.value(value: subtasksRepo),
         RepositoryProvider<TagsRepository>.value(value: tagsRepo),
+        RepositoryProvider<TaskSharesRepository>.value(value: taskSharesRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -128,7 +141,9 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => LoginCubit(authRepo)),
           BlocProvider(create: (_) => RegisterCubit(authRepo)),
           BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
-          BlocProvider(create: (_) => SystemTagsCubit(tagsRepository: tagsRepo)),
+          BlocProvider(
+            create: (_) => SystemTagsCubit(tagsRepository: tagsRepo),
+          ),
         ],
         child: MaterialApp.router(
           title: 'Todo App',
@@ -143,4 +158,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
