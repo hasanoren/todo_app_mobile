@@ -68,17 +68,15 @@ void main() async {
   );
 
   final subtasksRemoteDS = SubtasksRemoteDataSourceImpl(dio: dioClient.dio);
-  final subtasksRepo = SubtasksRepositoryImpl(
-    remoteDataSource: subtasksRemoteDS,
-  );
+  final subtasksRepo =
+      SubtasksRepositoryImpl(remoteDataSource: subtasksRemoteDS);
 
   final tagsRemoteDS = TagsRemoteDataSourceImpl(dio: dioClient.dio);
   final tagsRepo = TagsRepositoryImpl(remoteDataSource: tagsRemoteDS);
 
   final taskSharesRemoteDS = TaskSharesRemoteDataSourceImpl(dio: dioClient.dio);
-  final taskSharesRepo = TaskSharesRepositoryImpl(
-    remoteDataSource: taskSharesRemoteDS,
-  );
+  final taskSharesRepo =
+      TaskSharesRepositoryImpl(remoteDataSource: taskSharesRemoteDS);
 
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
@@ -141,9 +139,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => LoginCubit(authRepo)),
           BlocProvider(create: (_) => RegisterCubit(authRepo)),
           BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
-          BlocProvider(
-            create: (_) => SystemTagsCubit(tagsRepository: tagsRepo),
-          ),
+          BlocProvider(create: (_) => SystemTagsCubit(tagsRepository: tagsRepo)),
         ],
         child: MaterialApp.router(
           title: 'Todo App',
@@ -158,3 +154,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
