@@ -168,3 +168,4 @@ class TrashCubit extends Cubit<TrashState> {
     }
   }
 }
+

@@ -61,3 +61,4 @@ Bir kullanıcı olarak, artık kesinlikle ihtiyaç duymadığım silinmiş göre
 1. Kullanıcı çöp kutusundaki bir görevi en fazla 2 adımda geri yükleyebilir.
 2. Kalıcı silme işlemi onay diyaloğu olmadan asla gerçekleşmez.
 3. Çöp kutusundaki tüm işlemler (yükleme, geri alma, kalıcı silme) hatasız çalışır ve tüm birim testleri %100 başarılı olur.
+

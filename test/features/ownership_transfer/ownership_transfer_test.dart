@@ -72,6 +72,30 @@ class MockOwnershipTransferRepository implements OwnershipTransferRepository {
     return actionResponse ??
         const TransferActionResponseDto(message: 'İptal edildi');
   }
+
+  TransferRequestResponseDto? activeTransferRequest;
+
+  @override
+  Future<TransferRequestResponseDto?> getActiveOutgoingTransferRequest(
+    String taskId,
+  ) async {
+    if (shouldThrow) throw ServerFailure(message: errorMessage);
+    return activeTransferRequest;
+  }
+
+  @override
+  Future<void> saveActiveOutgoingTransferRequest(
+    TransferRequestResponseDto request,
+  ) async {
+    if (shouldThrow) throw ServerFailure(message: errorMessage);
+    activeTransferRequest = request;
+  }
+
+  @override
+  Future<void> clearActiveOutgoingTransferRequest(String taskId) async {
+    if (shouldThrow) throw ServerFailure(message: errorMessage);
+    activeTransferRequest = null;
+  }
 }
 
 void main() {

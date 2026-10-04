@@ -14,6 +14,7 @@ import '../../../tags/data/models/tag_response_dto.dart';
 import '../../../tags/presentation/widgets/task_tags_section.dart';
 import '../../../task_shares/presentation/widgets/task_shares_section.dart';
 import '../../../ownership_transfer/data/models/create_transfer_request_dto.dart';
+import '../../../ownership_transfer/data/models/transfer_request_response_dto.dart';
 import '../../../ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
 import '../../../ownership_transfer/presentation/widgets/transfer_ownership_dialog.dart';
 
@@ -27,12 +28,25 @@ class TaskDetailScreen extends StatefulWidget {
 }
 
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
+  TransferRequestResponseDto? _activeTransfer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TaskDetailCubit>().loadTask(widget.taskId);
+      _loadActiveTransfer();
     });
+  }
+
+  Future<void> _loadActiveTransfer() async {
+    final repo = context.read<OwnershipTransferRepository>();
+    final active = await repo.getActiveOutgoingTransferRequest(widget.taskId);
+    if (mounted) {
+      setState(() {
+        _activeTransfer = active;
+      });
+    }
   }
 
   Future<void> _openEditModal(TodoItemResponseDto task) async {
@@ -82,16 +96,50 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _openTransferModal(TodoItemResponseDto task) async {
+    if (_activeTransfer != null) {
+      final shouldCancel = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Bekleyen Devir İsteği'),
+          content: Text(
+            'Bu görev için zaten "${_activeTransfer!.toUserEmail}" adresine gönderilmiş bekleyen bir devir isteği bulunmaktadır.\n\nYeni bir istek göndermek için önce mevcut isteği iptal etmelisiniz.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Kapat'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade700,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Mevcut İsteği İptal Et'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldCancel == true && mounted) {
+        await _confirmCancelTransfer();
+      }
+      return;
+    }
+
     await TransferOwnershipDialog.show(
       context,
       onTransfer: (email) async {
         final repo = context.read<OwnershipTransferRepository>();
         try {
-          await repo.createTransferRequest(
+          final res = await repo.createTransferRequest(
             task.id,
             CreateTransferRequestDto(newOwnerEmail: email),
           );
           if (mounted) {
+            setState(() {
+              _activeTransfer = res;
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('$email adresine devir isteği başarıyla iletildi.'),
@@ -123,6 +171,77 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         }
       },
     );
+  }
+
+  Future<void> _confirmCancelTransfer() async {
+    if (_activeTransfer == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Devir İsteğini İptal Et'),
+        content: Text(
+          '"${_activeTransfer!.toUserEmail}" adresine gönderilen sahiplik devri isteğini geri çekmek istediğinize emin misiniz?\n\nGörevin tam sahipliği sizde kalmaya devam edecektir.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Vazgeç'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('İsteği Geri Çek'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _cancelTransfer();
+    }
+  }
+
+  Future<void> _cancelTransfer() async {
+    if (_activeTransfer == null) return;
+    final repo = context.read<OwnershipTransferRepository>();
+    final requestId = _activeTransfer!.id;
+
+    try {
+      final res = await repo.cancelTransferRequest(requestId);
+      if (mounted) {
+        setState(() {
+          _activeTransfer = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res.message),
+            backgroundColor: Colors.orange.shade800,
+          ),
+        );
+      }
+    } on Failure catch (f) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(f.message),
+            backgroundColor: Colors.red.shade700,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('İstek iptal edilirken bir hata oluştu.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -315,6 +434,72 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      // Pending Transfer Banner
+                      if (_activeTransfer != null && task.isOwner) ...[
+                        Card(
+                          color: Colors.amber.shade50,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.amber.shade300),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.hourglass_top_rounded,
+                                      color: Colors.amber.shade800,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Devir İsteği Beklemede',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.amber.shade900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Bu görev "${_activeTransfer!.toUserEmail}" kullanıcısına devredilmek üzere bekliyor. Karşı taraf kabul edene kadar isteği geri çekebilirsiniz.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.amber.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.red.shade700,
+                                      side: BorderSide(
+                                        color: Colors.red.shade300,
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.cancel_outlined,
+                                      size: 16,
+                                    ),
+                                    label:
+                                        const Text('İsteği Geri Çek (İptal Et)'),
+                                    onPressed: _confirmCancelTransfer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
 
                       // Title
                       Text(

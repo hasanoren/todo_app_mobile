@@ -201,3 +201,4 @@ class _TrashScreenState extends State<TrashScreen> {
     );
   }
 }
+

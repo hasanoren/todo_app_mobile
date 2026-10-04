@@ -11,5 +11,12 @@ abstract class OwnershipTransferRepository {
   Future<TransferActionResponseDto> acceptTransferRequest(String requestId);
   Future<TransferActionResponseDto> rejectTransferRequest(String requestId);
   Future<TransferActionResponseDto> cancelTransferRequest(String requestId);
+  Future<TransferRequestResponseDto?> getActiveOutgoingTransferRequest(
+    String taskId,
+  );
+  Future<void> saveActiveOutgoingTransferRequest(
+    TransferRequestResponseDto request,
+  );
+  Future<void> clearActiveOutgoingTransferRequest(String taskId);
 }
 

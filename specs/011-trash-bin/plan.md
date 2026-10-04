@@ -50,3 +50,4 @@
 - Ensure 0 analyzer issues via `dart analyze lib test`.
 - Run all test suites with `flutter test`.
 - Build debug APK and install on Samsung Galaxy A71 via ADB.
+

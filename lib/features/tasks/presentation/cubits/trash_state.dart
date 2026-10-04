@@ -72,3 +72,4 @@ class TrashState extends Equatable {
         successMessage,
       ];
 }
+

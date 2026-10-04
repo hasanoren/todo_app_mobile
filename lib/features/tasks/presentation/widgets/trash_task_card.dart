@@ -113,3 +113,4 @@ class TrashTaskCard extends StatelessWidget {
     );
   }
 }
+

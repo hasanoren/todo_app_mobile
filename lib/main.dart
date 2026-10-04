@@ -86,6 +86,7 @@ void main() async {
       OwnershipTransferRemoteDataSourceImpl(dio: dioClient.dio);
   final ownershipTransferRepo = OwnershipTransferRepositoryImpl(
     remoteDataSource: ownershipTransferRemoteDS,
+    storage: secureStorage,
   );
 
   authBloc = AuthBloc(authRepository: authRepo);

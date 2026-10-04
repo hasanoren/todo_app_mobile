@@ -49,6 +49,21 @@ class TransferRequestResponseDto extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'taskId': taskId,
+      'taskTitle': taskTitle,
+      'fromUserId': fromUserId,
+      'fromUserEmail': fromUserEmail,
+      'toUserId': toUserId,
+      'toUserEmail': toUserEmail,
+      'status': status,
+      'createdAt': createdAt.toIso8601String(),
+      'respondedAt': respondedAt?.toIso8601String(),
+    };
+  }
+
   @override
   List<Object?> get props => [
         id,
