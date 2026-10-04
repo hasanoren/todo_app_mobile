@@ -60,6 +60,10 @@ class ApiConstants {
   static String transferRequestCancel(String requestId) =>
       '/api/transfer-requests/$requestId/cancel';
 
+  // Task Activities Endpoints
+  static String taskActivities(String taskId) =>
+      '/api/TodoItems/$taskId/activities';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

@@ -33,6 +33,9 @@ import 'features/ownership_transfer/data/datasources/ownership_transfer_remote_d
 import 'features/ownership_transfer/data/repositories/ownership_transfer_repository_impl.dart';
 import 'features/ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
 import 'features/ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
+import 'features/task_activities/data/datasources/task_activities_remote_data_source.dart';
+import 'features/task_activities/data/repositories/task_activities_repository_impl.dart';
+import 'features/task_activities/domain/repositories/task_activities_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +92,11 @@ void main() async {
     storage: secureStorage,
   );
 
+  final taskActivitiesRemoteDS =
+      TaskActivitiesRemoteDataSourceImpl(dio: dioClient.dio);
+  final taskActivitiesRepo =
+      TaskActivitiesRepositoryImpl(remoteDataSource: taskActivitiesRemoteDS);
+
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
 
@@ -105,6 +113,7 @@ void main() async {
       tagsRepo: tagsRepo,
       taskSharesRepo: taskSharesRepo,
       ownershipTransferRepo: ownershipTransferRepo,
+      taskActivitiesRepo: taskActivitiesRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -120,6 +129,7 @@ class MyApp extends StatelessWidget {
   final TagsRepository tagsRepo;
   final TaskSharesRepository taskSharesRepo;
   final OwnershipTransferRepository ownershipTransferRepo;
+  final TaskActivitiesRepository taskActivitiesRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -133,6 +143,7 @@ class MyApp extends StatelessWidget {
     required this.tagsRepo,
     required this.taskSharesRepo,
     required this.ownershipTransferRepo,
+    required this.taskActivitiesRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -148,6 +159,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<TaskSharesRepository>.value(value: taskSharesRepo),
         RepositoryProvider<OwnershipTransferRepository>.value(
           value: ownershipTransferRepo,
+        ),
+        RepositoryProvider<TaskActivitiesRepository>.value(
+          value: taskActivitiesRepo,
         ),
       ],
       child: MultiBlocProvider(

@@ -19,6 +19,7 @@ import '../../../ownership_transfer/data/models/create_transfer_request_dto.dart
 import '../../../ownership_transfer/data/models/transfer_request_response_dto.dart';
 import '../../../ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
 import '../../../ownership_transfer/presentation/widgets/transfer_ownership_dialog.dart';
+import '../../../task_activities/presentation/widgets/task_activities_section.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -681,6 +682,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             Navigator.of(context).pop('deleted');
                           }
                         },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Task Activities section (FEAT-12)
+                      TaskActivitiesSection(
+                        taskId: task.id,
                       ),
                     ],
                   ),
