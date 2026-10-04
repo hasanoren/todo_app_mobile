@@ -39,6 +39,7 @@ import '../../features/tasks/presentation/cubits/tasks_cubit.dart';
 import '../../features/tasks/presentation/cubits/task_detail_cubit.dart';
 import '../../features/tasks/presentation/screens/tasks_screen.dart';
 import '../../features/tasks/presentation/screens/task_detail_screen.dart';
+import '../../features/ownership_transfer/presentation/screens/transfer_requests_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -310,6 +311,10 @@ class AppRouter {
             child: TaskDetailScreen(taskId: taskId),
           );
         },
+      ),
+      GoRoute(
+        path: RouteNames.transferRequests,
+        builder: (context, state) => const TransferRequestsScreen(),
       ),
       GoRoute(
         path: RouteNames.todoLists,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/app_date_format.dart';
 import '../../data/models/todo_item_response_dto.dart';
 import '../cubits/task_detail_cubit.dart';
@@ -12,6 +13,9 @@ import '../../../subtasks/presentation/widgets/subtasks_section.dart';
 import '../../../tags/data/models/tag_response_dto.dart';
 import '../../../tags/presentation/widgets/task_tags_section.dart';
 import '../../../task_shares/presentation/widgets/task_shares_section.dart';
+import '../../../ownership_transfer/data/models/create_transfer_request_dto.dart';
+import '../../../ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
+import '../../../ownership_transfer/presentation/widgets/transfer_ownership_dialog.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -77,6 +81,50 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  Future<void> _openTransferModal(TodoItemResponseDto task) async {
+    await TransferOwnershipDialog.show(
+      context,
+      onTransfer: (email) async {
+        final repo = context.read<OwnershipTransferRepository>();
+        try {
+          await repo.createTransferRequest(
+            task.id,
+            CreateTransferRequestDto(newOwnerEmail: email),
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$email adresine devir isteği başarıyla iletildi.'),
+                backgroundColor: Colors.green.shade700,
+              ),
+            );
+          }
+          return true;
+        } on Failure catch (failure) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(failure.message),
+                backgroundColor: Colors.red.shade700,
+              ),
+            );
+          }
+          return false;
+        } catch (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Devir isteği iletilemedi.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return false;
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -105,6 +153,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               title: const Text('Görev Detayı'),
               actions: [
                 if (task != null && task.isOwner) ...[
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz_outlined),
+                    tooltip: 'Sahipliği Devret',
+                    onPressed: () => _openTransferModal(task),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Düzenle',

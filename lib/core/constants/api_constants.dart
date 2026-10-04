@@ -45,6 +45,18 @@ class ApiConstants {
   static String taskShareMe(String taskId) =>
       '/api/todoitems/$taskId/shares/me';
 
+  // Ownership Transfer Endpoints
+  static String taskTransferRequests(String taskId) =>
+      '/api/todoitems/$taskId/transfer-requests';
+  static const String transferRequestsPending =
+      '/api/transfer-requests/pending';
+  static String transferRequestAccept(String requestId) =>
+      '/api/transfer-requests/$requestId/accept';
+  static String transferRequestReject(String requestId) =>
+      '/api/transfer-requests/$requestId/reject';
+  static String transferRequestCancel(String requestId) =>
+      '/api/transfer-requests/$requestId/cancel';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

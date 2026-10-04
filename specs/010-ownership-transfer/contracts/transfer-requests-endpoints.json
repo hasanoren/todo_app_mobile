@@ -1,0 +1,220 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Ownership Transfer API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/todoitems/{taskId}/transfer-requests": {
+      "post": {
+        "summary": "Initiate task ownership transfer request (owner only)",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["newOwnerEmail"],
+                "properties": {
+                  "newOwnerEmail": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferRequestResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - owner only" },
+          "404": { "description": "Task or user not found" }
+        }
+      }
+    },
+    "/api/transfer-requests/pending": {
+      "get": {
+        "summary": "Get pending incoming transfer requests for current user",
+        "responses": {
+          "200": {
+            "description": "List of pending transfer requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TransferRequestResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/transfer-requests/{requestId}/accept": {
+      "post": {
+        "summary": "Accept an incoming ownership transfer request (recipient only)",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer accepted and ownership transferred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - recipient only" },
+          "404": { "description": "Request not found" }
+        }
+      }
+    },
+    "/api/transfer-requests/{requestId}/reject": {
+      "post": {
+        "summary": "Reject an incoming ownership transfer request (recipient only)",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer request rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - recipient only" },
+          "404": { "description": "Request not found" }
+        }
+      }
+    },
+    "/api/transfer-requests/{requestId}/cancel": {
+      "post": {
+        "summary": "Cancel an outgoing ownership transfer request (original owner only)",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer request cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - original owner only" },
+          "404": { "description": "Request not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TransferRequestResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "taskId",
+          "taskTitle",
+          "fromUserId",
+          "fromUserEmail",
+          "toUserId",
+          "toUserEmail",
+          "status",
+          "createdAt"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "taskId": { "type": "string", "format": "uuid" },
+          "taskTitle": { "type": "string" },
+          "fromUserId": { "type": "string", "format": "uuid" },
+          "fromUserEmail": { "type": "string" },
+          "toUserId": { "type": "string", "format": "uuid" },
+          "toUserEmail": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["Pending", "Accepted", "Rejected", "Cancelled"]
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "respondedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      }
+    }
+  }
+}
+

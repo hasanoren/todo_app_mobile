@@ -12,6 +12,8 @@ import '../cubits/tasks_state.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_filter_bottom_sheet.dart';
 import '../widgets/task_form_modal.dart';
+import '../../../ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
+import '../../../ownership_transfer/presentation/cubits/pending_transfers_state.dart';
 
 class TasksScreen extends StatefulWidget {
   final String? initialTodoListId;
@@ -182,6 +184,22 @@ class _TasksScreenState extends State<TasksScreen> {
           appBar: AppBar(
             title: Text(title),
             actions: [
+              BlocBuilder<PendingTransfersCubit, PendingTransfersState>(
+                builder: (context, transferState) {
+                  final count = transferState.pendingCount;
+                  return IconButton(
+                    icon: Badge(
+                      isLabelVisible: count > 0,
+                      label: Text('$count'),
+                      child: const Icon(Icons.move_to_inbox_outlined),
+                    ),
+                    tooltip: 'Devir İstekleri',
+                    onPressed: () {
+                      context.push(RouteNames.transferRequests);
+                    },
+                  );
+                },
+              ),
               Stack(
                 alignment: Alignment.center,
                 children: [

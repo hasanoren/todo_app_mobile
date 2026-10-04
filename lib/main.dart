@@ -29,6 +29,10 @@ import 'features/tags/presentation/cubits/system_tags_cubit.dart';
 import 'features/task_shares/data/datasources/task_shares_remote_data_source.dart';
 import 'features/task_shares/data/repositories/task_shares_repository_impl.dart';
 import 'features/task_shares/domain/repositories/task_shares_repository.dart';
+import 'features/ownership_transfer/data/datasources/ownership_transfer_remote_data_source.dart';
+import 'features/ownership_transfer/data/repositories/ownership_transfer_repository_impl.dart';
+import 'features/ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
+import 'features/ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +82,12 @@ void main() async {
   final taskSharesRepo =
       TaskSharesRepositoryImpl(remoteDataSource: taskSharesRemoteDS);
 
+  final ownershipTransferRemoteDS =
+      OwnershipTransferRemoteDataSourceImpl(dio: dioClient.dio);
+  final ownershipTransferRepo = OwnershipTransferRepositoryImpl(
+    remoteDataSource: ownershipTransferRemoteDS,
+  );
+
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
 
@@ -93,6 +103,7 @@ void main() async {
       subtasksRepo: subtasksRepo,
       tagsRepo: tagsRepo,
       taskSharesRepo: taskSharesRepo,
+      ownershipTransferRepo: ownershipTransferRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -107,6 +118,7 @@ class MyApp extends StatelessWidget {
   final SubtasksRepository subtasksRepo;
   final TagsRepository tagsRepo;
   final TaskSharesRepository taskSharesRepo;
+  final OwnershipTransferRepository ownershipTransferRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -119,6 +131,7 @@ class MyApp extends StatelessWidget {
     required this.subtasksRepo,
     required this.tagsRepo,
     required this.taskSharesRepo,
+    required this.ownershipTransferRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -132,6 +145,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<SubtasksRepository>.value(value: subtasksRepo),
         RepositoryProvider<TagsRepository>.value(value: tagsRepo),
         RepositoryProvider<TaskSharesRepository>.value(value: taskSharesRepo),
+        RepositoryProvider<OwnershipTransferRepository>.value(
+          value: ownershipTransferRepo,
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -140,6 +156,11 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => RegisterCubit(authRepo)),
           BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
           BlocProvider(create: (_) => SystemTagsCubit(tagsRepository: tagsRepo)),
+          BlocProvider(
+            create: (_) => PendingTransfersCubit(
+              repository: ownershipTransferRepo,
+            )..loadPendingTransfers(),
+          ),
         ],
         child: MaterialApp.router(
           title: 'Todo App',
