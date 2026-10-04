@@ -10,6 +10,7 @@ class TaskCard extends StatelessWidget {
   final VoidCallback? onToggleComplete;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onLeave;
 
   const TaskCard({
     super.key,
@@ -18,6 +19,7 @@ class TaskCard extends StatelessWidget {
     this.onToggleComplete,
     this.onEdit,
     this.onDelete,
+    this.onLeave,
   });
 
   @override
@@ -265,7 +267,7 @@ class TaskCard extends StatelessWidget {
                 ),
               ),
 
-              // Owner Popup Menu
+              // Actions Popup Menu
               if (task.isOwner)
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, size: 20),
@@ -299,6 +301,34 @@ class TaskCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             'Sil',
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else if (onLeave != null)
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, size: 20),
+                  onSelected: (value) {
+                    if (value == 'leave') {
+                      onLeave?.call();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'leave',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.exit_to_app,
+                            size: 18,
+                            color: Colors.red.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Paylaşımdan Ayrıl',
                             style: TextStyle(color: Colors.red.shade700),
                           ),
                         ],

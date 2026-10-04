@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
-import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 
 // Screens
@@ -19,6 +18,7 @@ import '../../features/auth/presentation/screens/two_factor_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/profile_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 
 // Cubits
 import '../../features/auth/presentation/cubits/login_2fa_cubit.dart';
@@ -124,176 +124,7 @@ class AppRouter {
     routes: <GoRoute>[
       GoRoute(
         path: RouteNames.home,
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Ana Ekran'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.task_alt),
-                tooltip: 'Tüm Görevler',
-                onPressed: () {
-                  context.push(RouteNames.tasks);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_list_bulleted),
-                tooltip: 'Görev Listeleri',
-                onPressed: () {
-                  context.push(RouteNames.todoLists);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: 'Çöp Kutusu',
-                onPressed: () {
-                  context.push(RouteNames.trash);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.account_circle_outlined),
-                tooltip: 'Profil & Hesap',
-                onPressed: () {
-                  context.push(RouteNames.profile);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.shield_outlined),
-                tooltip: 'İki Faktörlü Doğrulama (2FA)',
-                onPressed: () {
-                  context.push(RouteNames.twoFactorSettings);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: 'Çıkış Yap',
-                onPressed: () {
-                  context.read<AuthBloc>().add(LoggedOut());
-                },
-              ),
-            ],
-          ),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: InkWell(
-                      onTap: () => context.push(RouteNames.tasks),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.task_alt,
-                                size: 32,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Tüm Görevler',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Görevlerinizi görüntüleyin, filtreleyin ve yönetin.',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey.shade600),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right, size: 28),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: InkWell(
-                      onTap: () => context.push(RouteNames.todoLists),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.format_list_bulleted,
-                                size: 32,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Görev Listeleri',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Listelerinizi oluşturun ve düzenleyin.',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey.shade600),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right, size: 28),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
         path: RouteNames.tasks,

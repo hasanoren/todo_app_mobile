@@ -14,6 +14,7 @@ import '../widgets/task_filter_bottom_sheet.dart';
 import '../widgets/task_form_modal.dart';
 import '../../../ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
 import '../../../ownership_transfer/presentation/cubits/pending_transfers_state.dart';
+import '../../../task_shares/domain/repositories/task_shares_repository.dart';
 
 class TasksScreen extends StatefulWidget {
   final String? initialTodoListId;
@@ -149,6 +150,57 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Future<void> _confirmLeaveShare(TodoItemResponseDto task) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Paylaşımdan Ayrıl'),
+        content: Text(
+          '"${task.title}" paylaşılan görevinden ayrılmak istediğinize emin misiniz? Görev listenizden kaldırılacaktır.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ayrıl'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repo = context.read<TaskSharesRepository>();
+        await repo.leaveSharedTask(task.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Paylaşılan görevden ayrıldınız.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          context.read<TasksCubit>().refreshTasks();
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Paylaşımdan ayrılırken bir hata oluştu.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   bool _isFilterActive(TodoItemFilterDto filter) {
     return filter.filterType != 0 ||
         filter.status != null ||
@@ -191,9 +243,9 @@ class _TasksScreenState extends State<TasksScreen> {
                     icon: Badge(
                       isLabelVisible: count > 0,
                       label: Text('$count'),
-                      child: const Icon(Icons.move_to_inbox_outlined),
+                      child: const Icon(Icons.assignment_ind_outlined),
                     ),
-                    tooltip: 'Devir İstekleri',
+                    tooltip: 'Devir İstekleri (Onay / Ret)',
                     onPressed: () {
                       context.push(RouteNames.transferRequests);
                     },
@@ -241,6 +293,69 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           body: Column(
             children: [
+              // Pending Transfers Alert Banner
+              BlocBuilder<PendingTransfersCubit, PendingTransfersState>(
+                builder: (context, transferState) {
+                  final count = transferState.pendingCount;
+                  if (count == 0) return const SizedBox.shrink();
+
+                  return Material(
+                    color: Colors.amber.shade50,
+                    child: InkWell(
+                      onTap: () => context.push(RouteNames.transferRequests),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.amber.shade300,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.assignment_ind_rounded,
+                              color: Colors.amber.shade900,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                '$count bekleyen görev devir isteğiniz var',
+                                style: TextStyle(
+                                  color: Colors.amber.shade900,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              'Onayla / Reddet',
+                              style: TextStyle(
+                                color: Colors.amber.shade900,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: Colors.amber.shade900,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
               // Search Bar
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -469,6 +584,7 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                             onEdit: () => _openEditModal(task),
                             onDelete: () => _confirmDelete(task),
+                            onLeave: () => _confirmLeaveShare(task),
                           );
                         },
                       ),

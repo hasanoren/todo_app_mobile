@@ -28,6 +28,14 @@ class _TransferRequestsScreenState extends State<TransferRequestsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Devir İstekleri'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Yenile',
+            onPressed: () =>
+                context.read<PendingTransfersCubit>().loadPendingTransfers(),
+          ),
+        ],
       ),
       body: BlocConsumer<PendingTransfersCubit, PendingTransfersState>(
         listener: (context, state) {
