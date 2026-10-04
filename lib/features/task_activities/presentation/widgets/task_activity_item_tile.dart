@@ -148,15 +148,83 @@ class TaskActivityItemTile extends StatelessWidget {
   _ActivityVisualInfo _getActivityVisual(String action) {
     final normalized = action.toLowerCase().trim();
 
-    if (normalized.contains('creat') || normalized.contains('oluştur')) {
+    // 1. Sahiplik Devri (Transfer)
+    if (normalized.contains('transfer') || normalized.contains('devir')) {
+      if (normalized.contains('kabul') || normalized.contains('accept')) {
+        return _ActivityVisualInfo(
+          icon: Icons.done_all,
+          color: Colors.green.shade700,
+          backgroundColor: Colors.green.shade50,
+          title: action.isNotEmpty ? action : 'Devir Kabul Edildi',
+        );
+      } else if (normalized.contains('red') || normalized.contains('reject')) {
+        return _ActivityVisualInfo(
+          icon: Icons.close,
+          color: Colors.red.shade700,
+          backgroundColor: Colors.red.shade50,
+          title: action.isNotEmpty ? action : 'Devir Reddedildi',
+        );
+      } else if (normalized.contains('iptal') ||
+          normalized.contains('cancel') ||
+          normalized.contains('geri çek')) {
+        return _ActivityVisualInfo(
+          icon: Icons.cancel_outlined,
+          color: Colors.orange.shade800,
+          backgroundColor: Colors.orange.shade50,
+          title: action.isNotEmpty ? action : 'Devir İptal Edildi',
+        );
+      }
       return _ActivityVisualInfo(
-        icon: Icons.add_circle_outline,
-        color: Colors.green.shade700,
-        backgroundColor: Colors.green.shade50,
-        title: 'Görev Oluşturuldu',
+        icon: Icons.swap_horiz_rounded,
+        color: Colors.deepPurple.shade700,
+        backgroundColor: Colors.deepPurple.shade50,
+        title: action.isNotEmpty ? action : 'Sahiplik Devri',
       );
-    } else if (normalized.contains('complet') ||
-        normalized.contains('tamamlan')) {
+    }
+
+    // 2. Paylaşım (Sharing)
+    if (normalized.contains('share') || normalized.contains('paylaş')) {
+      if (normalized.contains('unshare') ||
+          normalized.contains('remov') ||
+          normalized.contains('kaldır') ||
+          normalized.contains('sil')) {
+        return _ActivityVisualInfo(
+          icon: Icons.person_remove_outlined,
+          color: Colors.deepOrange.shade700,
+          backgroundColor: Colors.deepOrange.shade50,
+          title: action.isNotEmpty ? action : 'Paylaşım Kaldırıldı',
+        );
+      }
+      return _ActivityVisualInfo(
+        icon: Icons.person_add_alt_1_outlined,
+        color: Colors.indigo.shade700,
+        backgroundColor: Colors.indigo.shade50,
+        title: action.isNotEmpty ? action : 'Görev Paylaşıldı',
+      );
+    }
+
+    // 3. Alt Görev (Subtask)
+    if (normalized.contains('subtask') || normalized.contains('alt görev')) {
+      return _ActivityVisualInfo(
+        icon: Icons.checklist,
+        color: Colors.cyan.shade800,
+        backgroundColor: Colors.cyan.shade50,
+        title: action.isNotEmpty ? action : 'Alt Görev İşlemi',
+      );
+    }
+
+    // 4. Etiket (Tag)
+    if (normalized.contains('tag') || normalized.contains('etiket')) {
+      return _ActivityVisualInfo(
+        icon: Icons.label_outline,
+        color: Colors.amber.shade900,
+        backgroundColor: Colors.amber.shade50,
+        title: action.isNotEmpty ? action : 'Etiket İşlemi',
+      );
+    }
+
+    // 5. Tamamlama (Completion)
+    if (normalized.contains('complet') || normalized.contains('tamamlan')) {
       if (normalized.contains('un') ||
           normalized.contains('geri') ||
           normalized.contains('incomplet')) {
@@ -173,7 +241,32 @@ class TaskActivityItemTile extends StatelessWidget {
         backgroundColor: Colors.teal.shade50,
         title: 'Görev Tamamlandı',
       );
-    } else if (normalized.contains('updat') ||
+    }
+
+    // 6. Silme (Deletion)
+    if (normalized.contains('delet') || normalized.contains('sil')) {
+      return _ActivityVisualInfo(
+        icon: Icons.delete_outline,
+        color: Colors.red.shade700,
+        backgroundColor: Colors.red.shade50,
+        title: 'Görev Silindi',
+      );
+    }
+
+    // 7. Geri Yükleme (Restore)
+    if (normalized.contains('restor') ||
+        normalized.contains('kurtar') ||
+        normalized.contains('geri yükle')) {
+      return _ActivityVisualInfo(
+        icon: Icons.restore,
+        color: Colors.teal.shade700,
+        backgroundColor: Colors.teal.shade50,
+        title: 'Görev Geri Yüklendi',
+      );
+    }
+
+    // 8. Güncelleme (Update)
+    if (normalized.contains('updat') ||
         normalized.contains('edit') ||
         normalized.contains('güncel')) {
       return _ActivityVisualInfo(
@@ -182,61 +275,17 @@ class TaskActivityItemTile extends StatelessWidget {
         backgroundColor: Colors.blue.shade50,
         title: 'Görev Güncellendi',
       );
-    } else if (normalized.contains('delet') || normalized.contains('sil')) {
+    }
+
+    // 9. Görev Oluşturulması (Creation - Yalnızca genel görev oluşturma)
+    if (normalized.contains('creat') ||
+        normalized == 'oluşturuldu' ||
+        normalized == 'görev oluşturuldu') {
       return _ActivityVisualInfo(
-        icon: Icons.delete_outline,
-        color: Colors.red.shade700,
-        backgroundColor: Colors.red.shade50,
-        title: 'Görev Silindi',
-      );
-    } else if (normalized.contains('restor') ||
-        normalized.contains('kurtar')) {
-      return _ActivityVisualInfo(
-        icon: Icons.restore,
-        color: Colors.teal.shade700,
-        backgroundColor: Colors.teal.shade50,
-        title: 'Görev Geri Yüklendi',
-      );
-    } else if (normalized.contains('transfer') ||
-        normalized.contains('devir')) {
-      return _ActivityVisualInfo(
-        icon: Icons.swap_horiz_rounded,
-        color: Colors.deepPurple.shade700,
-        backgroundColor: Colors.deepPurple.shade50,
-        title: 'Sahiplik Devri',
-      );
-    } else if (normalized.contains('share') ||
-        normalized.contains('paylaş')) {
-      if (normalized.contains('unshare') ||
-          normalized.contains('remov') ||
-          normalized.contains('kaldır')) {
-        return _ActivityVisualInfo(
-          icon: Icons.person_remove_outlined,
-          color: Colors.deepOrange.shade700,
-          backgroundColor: Colors.deepOrange.shade50,
-          title: 'Paylaşım Kaldırıldı',
-        );
-      }
-      return _ActivityVisualInfo(
-        icon: Icons.person_add_alt_1_outlined,
-        color: Colors.indigo.shade700,
-        backgroundColor: Colors.indigo.shade50,
-        title: 'Görev Paylaşıldı',
-      );
-    } else if (normalized.contains('subtask') ||
-        normalized.contains('alt görev')) {
-      return _ActivityVisualInfo(
-        icon: Icons.checklist,
-        color: Colors.cyan.shade800,
-        backgroundColor: Colors.cyan.shade50,
-        title: 'Alt Görev İşlemi',
-      );
-    } else if (normalized.contains('tag') || normalized.contains('etiket')) {
-      return _ActivityVisualInfo(
-        icon: Icons.label_outline,
-        color: Colors.amber.shade900,
-        backgroundColor: Colors.amber.shade50,
-        title: 'Etiket İşlemi',
+        icon: Icons.add_circle_outline,
+        color: Colors.green.shade700,
+        backgroundColor: Colors.green.shade50,
+        title: 'Görev Oluşturuldu',
       );
     }
 
