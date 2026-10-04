@@ -56,46 +56,62 @@ class _RealtimeNotificationListenerState
 
   void _handleEvent(BuildContext context, RealtimeEvent event) {
     if (event is ReceiveNotificationEvent) {
+      final titleLower = event.title.toLowerCase();
+      final msgLower = event.message.toLowerCase();
+
+      IconData icon = Icons.notifications_active_outlined;
+      Color color = Colors.blueGrey.shade900;
+
+      if (titleLower.contains('paylaş') || msgLower.contains('paylaş')) {
+        icon = Icons.person_add_alt_1_outlined;
+        color = Colors.indigo.shade800;
+        _triggerTasksRefresh(context);
+      } else if (titleLower.contains('devir') || msgLower.contains('devir')) {
+        icon = Icons.swap_horiz_rounded;
+        color = Colors.deepPurple.shade800;
+        _triggerTransfersRefresh(context);
+        _triggerTasksRefresh(context);
+      } else if (titleLower.contains('güncelle') ||
+          titleLower.contains('tamamlan') ||
+          msgLower.contains('güncelle') ||
+          msgLower.contains('tamamlan')) {
+        icon = Icons.edit_note_outlined;
+        color = Colors.teal.shade800;
+        _triggerTasksRefresh(context);
+      } else {
+        _triggerTasksRefresh(context);
+      }
+
       _showSnackBar(
         context,
-        icon: Icons.notifications_active_outlined,
-        color: Colors.blueGrey.shade900,
+        icon: icon,
+        color: color,
         title: event.title.isNotEmpty ? event.title : 'Bildirim',
         message: event.message,
       );
-      if (event.title.toLowerCase().contains('devir') ||
-          event.message.toLowerCase().contains('devir')) {
-        _triggerTransfersRefresh(context);
-        _triggerTasksRefresh(context);
-      }
     } else if (event is TaskSharedEvent) {
-      _showSnackBar(
-        context,
-        icon: Icons.person_add_alt_1_outlined,
-        color: Colors.indigo.shade800,
-        title: 'Yeni Görev Paylaşıldı',
-        message:
-            '"${event.taskTitle.isNotEmpty ? event.taskTitle : 'Yeni görev'}" sizinle paylaşıldı.',
-      );
+      if (event.taskTitle.isNotEmpty) {
+        _showSnackBar(
+          context,
+          icon: Icons.person_add_alt_1_outlined,
+          color: Colors.indigo.shade800,
+          title: event.taskTitle,
+          message: 'Görevi sizinle paylaşıldı.',
+        );
+      }
       _triggerTasksRefresh(context);
     } else if (event is TaskUpdatedEvent) {
-      _showSnackBar(
-        context,
-        icon: Icons.sync,
-        color: Colors.teal.shade800,
-        title: 'Görev Güncellendi',
-        message: 'Paylaşılan bir görevde değişiklik yapıldı.',
-      );
       _triggerTasksRefresh(context);
     } else if (event is TransferRequestedEvent) {
-      _showSnackBar(
-        context,
-        icon: Icons.swap_horiz_rounded,
-        color: Colors.deepPurple.shade800,
-        title: 'Sahiplik Devir İsteği',
-        message:
-            '"${event.taskTitle.isNotEmpty ? event.taskTitle : 'Görev'}" için size devir isteği gönderildi.',
-      );
+      if (event.taskTitle.isNotEmpty) {
+        _showSnackBar(
+          context,
+          icon: Icons.swap_horiz_rounded,
+          color: Colors.deepPurple.shade800,
+          title: event.taskTitle,
+          message: 'Sahiplik devir isteği gönderildi.',
+        );
+      }
       _triggerTransfersRefresh(context);
     }
   }
