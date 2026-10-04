@@ -38,6 +38,13 @@ class ApiConstants {
   static String taskTag(String taskId, String tagId) =>
       '/api/todoitems/$taskId/tags/$tagId';
 
+  // Task Shares Endpoints
+  static String taskShares(String taskId) => '/api/todoitems/$taskId/shares';
+  static String taskShareUser(String taskId, String userId) =>
+      '/api/todoitems/$taskId/shares/$userId';
+  static String taskShareMe(String taskId) =>
+      '/api/todoitems/$taskId/shares/me';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

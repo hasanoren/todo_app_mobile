@@ -11,6 +11,7 @@ import '../../../subtasks/data/models/subtask_response_dto.dart';
 import '../../../subtasks/presentation/widgets/subtasks_section.dart';
 import '../../../tags/data/models/tag_response_dto.dart';
 import '../../../tags/presentation/widgets/task_tags_section.dart';
+import '../../../task_shares/presentation/widgets/task_shares_section.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -383,6 +384,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                   createdAt: t.createdAt,
                                 ))
                             .toList(),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Task Shares section (FEAT-09)
+                      TaskSharesSection(
+                        taskId: task.id,
+                        isOwner: task.isOwner,
+                        initialShares: task.sharedWith,
+                        onLeaveSuccess: () {
+                          if (mounted) {
+                            Navigator.of(context).pop('deleted');
+                          }
+                        },
                       ),
                     ],
                   ),
