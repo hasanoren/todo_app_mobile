@@ -53,7 +53,12 @@ class PendingTransfersCubit extends Cubit<PendingTransfersState> {
     );
 
     try {
+      final targetItem =
+          state.items.where((item) => item.id == requestId).firstOrNull;
       final response = await repository.acceptTransferRequest(requestId);
+      if (targetItem != null) {
+        await repository.clearActiveOutgoingTransferRequest(targetItem.taskId);
+      }
       final remaining =
           state.items.where((item) => item.id != requestId).toList();
       emit(
@@ -92,7 +97,12 @@ class PendingTransfersCubit extends Cubit<PendingTransfersState> {
     );
 
     try {
+      final targetItem =
+          state.items.where((item) => item.id == requestId).firstOrNull;
       final response = await repository.rejectTransferRequest(requestId);
+      if (targetItem != null) {
+        await repository.clearActiveOutgoingTransferRequest(targetItem.taskId);
+      }
       final remaining =
           state.items.where((item) => item.id != requestId).toList();
       emit(

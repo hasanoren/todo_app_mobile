@@ -53,11 +53,6 @@ class SecureStorageService {
   }
 
   Future<void> clearAuthData() async {
-    await delete(StorageKeys.authAccessToken);
-    await delete(StorageKeys.authRefreshToken);
-    await delete(StorageKeys.authUserId);
-    await delete(StorageKeys.authEmail);
-    await delete(StorageKeys.authTokenExpiresAt);
-    await delete(StorageKeys.authTwoFactorEnabled);
+    await deleteAll();
   }
 }

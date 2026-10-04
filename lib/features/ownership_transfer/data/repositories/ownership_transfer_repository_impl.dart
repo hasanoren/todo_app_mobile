@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../../core/constants/storage_keys.dart';
 import '../../../../core/errors/api_exception.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/storage/secure_storage_service.dart';
@@ -56,7 +57,16 @@ class OwnershipTransferRepositoryImpl implements OwnershipTransferRepository {
     String requestId,
   ) async {
     try {
-      return await remoteDataSource.acceptTransferRequest(requestId);
+      final response = await remoteDataSource.acceptTransferRequest(requestId);
+      final entry = _memoryCache.entries
+          .where((e) => e.value.id == requestId)
+          .firstOrNull;
+      if (entry != null) {
+        await clearActiveOutgoingTransferRequest(entry.key);
+      } else {
+        _memoryCache.removeWhere((_, req) => req.id == requestId);
+      }
+      return response;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
@@ -71,7 +81,16 @@ class OwnershipTransferRepositoryImpl implements OwnershipTransferRepository {
     String requestId,
   ) async {
     try {
-      return await remoteDataSource.rejectTransferRequest(requestId);
+      final response = await remoteDataSource.rejectTransferRequest(requestId);
+      final entry = _memoryCache.entries
+          .where((e) => e.value.id == requestId)
+          .firstOrNull;
+      if (entry != null) {
+        await clearActiveOutgoingTransferRequest(entry.key);
+      } else {
+        _memoryCache.removeWhere((_, req) => req.id == requestId);
+      }
+      return response;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
@@ -87,7 +106,14 @@ class OwnershipTransferRepositoryImpl implements OwnershipTransferRepository {
   ) async {
     try {
       final response = await remoteDataSource.cancelTransferRequest(requestId);
-      _memoryCache.removeWhere((_, req) => req.id == requestId);
+      final entry = _memoryCache.entries
+          .where((e) => e.value.id == requestId)
+          .firstOrNull;
+      if (entry != null) {
+        await clearActiveOutgoingTransferRequest(entry.key);
+      } else {
+        _memoryCache.removeWhere((_, req) => req.id == requestId);
+      }
       return response;
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
@@ -102,21 +128,32 @@ class OwnershipTransferRepositoryImpl implements OwnershipTransferRepository {
   Future<TransferRequestResponseDto?> getActiveOutgoingTransferRequest(
     String taskId,
   ) async {
-    if (_memoryCache.containsKey(taskId)) {
-      return _memoryCache[taskId];
-    }
-    if (storage != null) {
+    TransferRequestResponseDto? candidate = _memoryCache[taskId];
+    if (candidate == null && storage != null) {
       final jsonStr = await storage!.read('active_transfer_$taskId');
       if (jsonStr != null && jsonStr.isNotEmpty) {
         try {
           final data = jsonDecode(jsonStr) as Map<String, dynamic>;
-          final parsed = TransferRequestResponseDto.fromJson(data);
-          _memoryCache[taskId] = parsed;
-          return parsed;
+          candidate = TransferRequestResponseDto.fromJson(data);
+          _memoryCache[taskId] = candidate;
         } catch (_) {}
       }
     }
-    return null;
+
+    if (candidate != null && storage != null) {
+      final currentUserId = await storage!.read(StorageKeys.authUserId);
+      if (currentUserId != null && currentUserId.isNotEmpty) {
+        // If current user is NOT the creator of this transfer (or is the recipient),
+        // it is NOT an outgoing pending transfer for current user!
+        if (candidate.fromUserId != currentUserId ||
+            candidate.toUserId == currentUserId) {
+          await clearActiveOutgoingTransferRequest(taskId);
+          return null;
+        }
+      }
+    }
+
+    return candidate;
   }
 
   @override

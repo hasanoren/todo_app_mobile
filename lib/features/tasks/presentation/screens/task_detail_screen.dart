@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/app_date_format.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../data/models/todo_item_response_dto.dart';
 import '../cubits/task_detail_cubit.dart';
 import '../cubits/task_detail_state.dart';
@@ -40,8 +42,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _loadActiveTransfer() async {
+    final authState = context.read<AuthBloc>().state;
+    final currentUserId =
+        (authState is Authenticated) ? authState.userId : null;
     final repo = context.read<OwnershipTransferRepository>();
     final active = await repo.getActiveOutgoingTransferRequest(widget.taskId);
+
+    if (active != null && currentUserId != null) {
+      if (active.fromUserId != currentUserId ||
+          active.toUserId == currentUserId) {
+        await repo.clearActiveOutgoingTransferRequest(widget.taskId);
+        if (mounted) {
+          setState(() {
+            _activeTransfer = null;
+          });
+        }
+        return;
+      }
+    }
+
     if (mounted) {
       setState(() {
         _activeTransfer = active;
@@ -225,6 +244,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       }
     } on Failure catch (f) {
       if (mounted) {
+        if (f.message.contains('zaten yanıtlanmış') ||
+            f.message.contains('iptal edilmiş') ||
+            f.message.contains('bulunamadı')) {
+          repo.clearActiveOutgoingTransferRequest(widget.taskId);
+          setState(() {
+            _activeTransfer = null;
+          });
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(f.message),
@@ -257,6 +284,21 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               backgroundColor: Colors.red.shade700,
             ),
           );
+        }
+
+        final task = state.task;
+        if (task != null && _activeTransfer != null) {
+          if (!task.isOwner ||
+              (task.ownerId.isNotEmpty &&
+                  _activeTransfer!.toUserId.isNotEmpty &&
+                  task.ownerId == _activeTransfer!.toUserId)) {
+            context
+                .read<OwnershipTransferRepository>()
+                .clearActiveOutgoingTransferRequest(task.id);
+            setState(() {
+              _activeTransfer = null;
+            });
+          }
         }
       },
       builder: (context, state) {
@@ -436,7 +478,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       const SizedBox(height: 20),
 
                       // Pending Transfer Banner
-                      if (_activeTransfer != null && task.isOwner) ...[
+                      if (_activeTransfer != null &&
+                          task.isOwner &&
+                          (task.ownerId.isEmpty ||
+                              _activeTransfer!.toUserId.isEmpty ||
+                              task.ownerId != _activeTransfer!.toUserId)) ...[
                         Card(
                           color: Colors.amber.shade50,
                           elevation: 0,
