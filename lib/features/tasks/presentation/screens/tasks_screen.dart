@@ -200,6 +200,15 @@ class _TasksScreenState extends State<TasksScreen> {
                   );
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Çöp Kutusu',
+                onPressed: () async {
+                  await context.push(RouteNames.trash);
+                  if (!context.mounted) return;
+                  context.read<TasksCubit>().refreshTasks();
+                },
+              ),
               Stack(
                 alignment: Alignment.center,
                 children: [

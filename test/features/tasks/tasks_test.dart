@@ -108,6 +108,35 @@ class MockTodoItemsRepository implements TodoItemsRepository {
     if (shouldThrow) throw Exception('API Error');
     mockItems.removeWhere((i) => i.id == id);
   }
+
+  @override
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTrashItems({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    if (shouldThrow) throw Exception('API Error');
+    return PaginatedResponseDto(
+      items: const [],
+      page: page,
+      pageSize: pageSize,
+      totalCount: 0,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    );
+  }
+
+  @override
+  Future<TodoItemResponseDto> restoreTodoItem(String id) async {
+    if (shouldThrow) throw Exception('API Error');
+    return mockItems.firstWhere((i) => i.id == id);
+  }
+
+  @override
+  Future<void> permanentDeleteTodoItem(String id) async {
+    if (shouldThrow) throw Exception('API Error');
+    mockItems.removeWhere((i) => i.id == id);
+  }
 }
 
 void main() {

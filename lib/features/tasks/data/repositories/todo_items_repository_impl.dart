@@ -87,4 +87,45 @@ class TodoItemsRepositoryImpl implements TodoItemsRepository {
       throw const NetworkFailure(message: 'Görev silinemedi.');
     }
   }
+
+  @override
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTrashItems({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      return await remoteDataSource.getTrashItems(
+        page: page,
+        pageSize: pageSize,
+      );
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (_) {
+      throw const NetworkFailure(
+        message: 'Çöp kutusundaki görevler yüklenirken bir hata oluştu.',
+      );
+    }
+  }
+
+  @override
+  Future<TodoItemResponseDto> restoreTodoItem(String id) async {
+    try {
+      return await remoteDataSource.restoreTodoItem(id);
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (_) {
+      throw const NetworkFailure(message: 'Görev geri yüklenemedi.');
+    }
+  }
+
+  @override
+  Future<void> permanentDeleteTodoItem(String id) async {
+    try {
+      await remoteDataSource.permanentDeleteTodoItem(id);
+    } on ApiException catch (e) {
+      throw ServerFailure(message: e.detail, validationErrors: e.errors);
+    } catch (_) {
+      throw const NetworkFailure(message: 'Görev kalıcı olarak silinemedi.');
+    }
+  }
 }

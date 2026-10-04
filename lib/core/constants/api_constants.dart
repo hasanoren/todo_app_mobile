@@ -23,6 +23,9 @@ class ApiConstants {
 
   // Todo Items Endpoints
   static const String todoItems = '/api/TodoItems';
+  static const String todoItemsTrash = '/api/TodoItems/trash';
+  static String todoItemRestore(String id) => '/api/TodoItems/$id/restore';
+  static String todoItemPermanent(String id) => '/api/TodoItems/$id/permanent';
 
   // Subtasks Endpoints
   static String taskSubtasks(String taskId) =>

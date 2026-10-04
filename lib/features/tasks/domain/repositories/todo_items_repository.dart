@@ -16,4 +16,10 @@ abstract class TodoItemsRepository {
   );
   Future<TodoItemResponseDto> toggleComplete(String id);
   Future<void> deleteTodoItem(String id);
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTrashItems({
+    int page = 1,
+    int pageSize = 20,
+  });
+  Future<TodoItemResponseDto> restoreTodoItem(String id);
+  Future<void> permanentDeleteTodoItem(String id);
 }

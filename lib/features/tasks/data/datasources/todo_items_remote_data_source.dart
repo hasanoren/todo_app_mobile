@@ -20,6 +20,12 @@ abstract class TodoItemsRemoteDataSource {
   );
   Future<TodoItemResponseDto> toggleComplete(String id);
   Future<void> deleteTodoItem(String id);
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTrashItems({
+    int page = 1,
+    int pageSize = 20,
+  });
+  Future<TodoItemResponseDto> restoreTodoItem(String id);
+  Future<void> permanentDeleteTodoItem(String id);
 }
 
 class TodoItemsRemoteDataSourceImpl implements TodoItemsRemoteDataSource {
@@ -112,6 +118,51 @@ class TodoItemsRemoteDataSourceImpl implements TodoItemsRemoteDataSource {
   Future<void> deleteTodoItem(String id) async {
     try {
       await dio.delete('${ApiConstants.todoItems}/$id');
+    } on DioException catch (e) {
+      _handleDioException(e);
+    }
+  }
+
+  @override
+  Future<PaginatedResponseDto<TodoItemResponseDto>> getTrashItems({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await dio.get(
+        ApiConstants.todoItemsTrash,
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+        },
+      );
+      final json = response.data as Map<String, dynamic>;
+      return PaginatedResponseDto.fromJson(
+        json,
+        (itemJson) =>
+            TodoItemResponseDto.fromJson(itemJson as Map<String, dynamic>),
+      );
+    } on DioException catch (e) {
+      _handleDioException(e);
+    }
+  }
+
+  @override
+  Future<TodoItemResponseDto> restoreTodoItem(String id) async {
+    try {
+      final response = await dio.post(ApiConstants.todoItemRestore(id));
+      return TodoItemResponseDto.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      _handleDioException(e);
+    }
+  }
+
+  @override
+  Future<void> permanentDeleteTodoItem(String id) async {
+    try {
+      await dio.delete(ApiConstants.todoItemPermanent(id));
     } on DioException catch (e) {
       _handleDioException(e);
     }

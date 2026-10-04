@@ -39,6 +39,8 @@ import '../../features/tasks/presentation/cubits/tasks_cubit.dart';
 import '../../features/tasks/presentation/cubits/task_detail_cubit.dart';
 import '../../features/tasks/presentation/screens/tasks_screen.dart';
 import '../../features/tasks/presentation/screens/task_detail_screen.dart';
+import '../../features/tasks/presentation/cubits/trash_cubit.dart';
+import '../../features/tasks/presentation/screens/trash_screen.dart';
 import '../../features/ownership_transfer/presentation/screens/transfer_requests_screen.dart';
 
 class AppRouter {
@@ -138,6 +140,13 @@ class AppRouter {
                 tooltip: 'Görev Listeleri',
                 onPressed: () {
                   context.push(RouteNames.todoLists);
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Çöp Kutusu',
+                onPressed: () {
+                  context.push(RouteNames.trash);
                 },
               ),
               IconButton(
@@ -315,6 +324,14 @@ class AppRouter {
       GoRoute(
         path: RouteNames.transferRequests,
         builder: (context, state) => const TransferRequestsScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.trash,
+        builder: (context, state) => BlocProvider(
+          create: (_) =>
+              TrashCubit(repository: todoItemsRepository)..loadTrash(),
+          child: const TrashScreen(),
+        ),
       ),
       GoRoute(
         path: RouteNames.todoLists,

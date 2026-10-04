@@ -11,4 +11,5 @@ class RouteNames {
   static const String tasks = '/tasks';
   static const String taskDetail = '/tasks/:id';
   static const String transferRequests = '/transfer-requests';
+  static const String trash = '/trash';
 }
