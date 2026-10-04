@@ -124,7 +124,7 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                   label: Text(type.displayName),
                   selected: isSelected,
                   onSelected: (selected) {
-                    if (selected) setState(() => _filterType = type.value);
+                    setState(() => _filterType = selected ? type.value : 0);
                   },
                 );
               }).toList(),
@@ -153,14 +153,14 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                   label: const Text('Açık'),
                   selected: _status == 0,
                   onSelected: (selected) {
-                    if (selected) setState(() => _status = 0);
+                    setState(() => _status = selected ? 0 : null);
                   },
                 ),
                 ChoiceChip(
                   label: const Text('Tamamlandı'),
                   selected: _status == 1,
                   onSelected: (selected) {
-                    if (selected) setState(() => _status = 1);
+                    setState(() => _status = selected ? 1 : null);
                   },
                 ),
               ],
@@ -191,7 +191,7 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                     label: Text(p.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
-                      if (selected) setState(() => _priority = p.value);
+                      setState(() => _priority = selected ? p.value : null);
                     },
                   );
                 }),
@@ -215,7 +215,9 @@ class _TaskFilterBottomSheetState extends State<TaskFilterBottomSheet> {
                   label: Text(sort.displayName),
                   selected: isSelected,
                   onSelected: (selected) {
-                    if (selected) setState(() => _sortBy = sort.apiValue);
+                    setState(
+                      () => _sortBy = selected ? sort.apiValue : 'createdAt',
+                    );
                   },
                 );
               }).toList(),

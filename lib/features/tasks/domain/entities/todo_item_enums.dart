@@ -1,8 +1,7 @@
 enum TaskPriority {
   low(1, 'Low', 'Düşük'),
   medium(2, 'Medium', 'Orta'),
-  high(3, 'High', 'Yüksek'),
-  urgent(4, 'Urgent', 'Acil');
+  high(3, 'High', 'Yüksek');
 
   final int value;
   final String apiName;
@@ -13,10 +12,9 @@ enum TaskPriority {
   static TaskPriority fromServer(dynamic raw) {
     if (raw == null) return TaskPriority.medium;
     if (raw is int) {
-      return TaskPriority.values.firstWhere(
-        (p) => p.value == raw,
-        orElse: () => TaskPriority.medium,
-      );
+      if (raw <= 1) return TaskPriority.low;
+      if (raw == 2) return TaskPriority.medium;
+      return TaskPriority.high;
     }
     final str = raw.toString().trim().toLowerCase();
     switch (str) {
@@ -29,10 +27,9 @@ enum TaskPriority {
         return TaskPriority.medium;
       case 'high':
       case '3':
-        return TaskPriority.high;
       case 'urgent':
       case '4':
-        return TaskPriority.urgent;
+        return TaskPriority.high;
       default:
         return TaskPriority.medium;
     }

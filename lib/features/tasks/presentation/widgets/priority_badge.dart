@@ -15,8 +15,6 @@ class PriorityBadge extends StatelessWidget {
         return Colors.blue;
       case TaskPriority.high:
         return Colors.orange.shade800;
-      case TaskPriority.urgent:
-        return Colors.red.shade700;
     }
   }
 
@@ -28,8 +26,6 @@ class PriorityBadge extends StatelessWidget {
         return Icons.drag_handle;
       case TaskPriority.high:
         return Icons.arrow_upward;
-      case TaskPriority.urgent:
-        return Icons.priority_high;
     }
   }
 
