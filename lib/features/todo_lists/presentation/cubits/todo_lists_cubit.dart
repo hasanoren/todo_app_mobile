@@ -11,6 +11,13 @@ class TodoListsCubit extends Cubit<TodoListsState> {
   TodoListsCubit({required this.repository})
       : super(const TodoListsState());
 
+  @override
+  void emit(TodoListsState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadLists() async {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {

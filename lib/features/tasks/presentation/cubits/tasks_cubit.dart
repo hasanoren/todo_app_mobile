@@ -11,6 +11,13 @@ class TasksCubit extends Cubit<TasksState> {
 
   TasksCubit({required this.repository}) : super(const TasksState());
 
+  @override
+  void emit(TasksState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadTasks({
     bool resetPage = true,
     TodoItemFilterDto? customFilter,

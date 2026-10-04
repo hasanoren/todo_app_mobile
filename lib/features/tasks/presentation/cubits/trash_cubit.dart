@@ -9,6 +9,13 @@ class TrashCubit extends Cubit<TrashState> {
 
   TrashCubit({required this.repository}) : super(const TrashState());
 
+  @override
+  void emit(TrashState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadTrash({bool refresh = false}) async {
     if (state.status == TrashStatus.loading && !refresh) return;
 

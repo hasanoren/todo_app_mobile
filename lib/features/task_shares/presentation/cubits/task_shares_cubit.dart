@@ -11,6 +11,13 @@ class TaskSharesCubit extends Cubit<TaskSharesState> {
 
   TaskSharesCubit({required this.repository}) : super(const TaskSharesState());
 
+  @override
+  void emit(TaskSharesState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   void initializeWithShares(List<SharedUserItemDto> initialShares) {
     emit(
       state.copyWith(

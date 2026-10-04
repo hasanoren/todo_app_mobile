@@ -10,6 +10,13 @@ class PendingTransfersCubit extends Cubit<PendingTransfersState> {
   PendingTransfersCubit({required this.repository})
       : super(const PendingTransfersState());
 
+  @override
+  void emit(PendingTransfersState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadPendingTransfers() async {
     emit(
       state.copyWith(

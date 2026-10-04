@@ -10,6 +10,13 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
 
   TaskDetailCubit({required this.repository}) : super(const TaskDetailState());
 
+  @override
+  void emit(TaskDetailState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadTask(String id) async {
     emit(state.copyWith(status: TaskDetailStatus.loading, errorMessage: null));
 

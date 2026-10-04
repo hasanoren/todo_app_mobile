@@ -10,6 +10,13 @@ class SubtasksCubit extends Cubit<SubtasksState> {
 
   SubtasksCubit({required this.repository}) : super(const SubtasksState());
 
+  @override
+  void emit(SubtasksState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   void setInitialItems(List<SubtaskResponseDto> initialItems) {
     emit(state.copyWith(status: SubtasksStatus.success, items: initialItems));
   }

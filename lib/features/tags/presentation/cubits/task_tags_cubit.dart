@@ -19,6 +19,13 @@ class TaskTagsCubit extends Cubit<TaskTagsState> {
              : const TaskTagsInitial(),
        );
 
+  @override
+  void emit(TaskTagsState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> loadTags() async {
     emit(const TaskTagsLoading());
     try {
