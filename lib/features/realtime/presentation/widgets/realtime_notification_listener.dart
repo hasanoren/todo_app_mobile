@@ -42,6 +42,11 @@ class RealtimeNotificationListener extends StatelessWidget {
         title: event.title.isNotEmpty ? event.title : 'Bildirim',
         message: event.message,
       );
+      if (event.title.toLowerCase().contains('devir') ||
+          event.message.toLowerCase().contains('devir')) {
+        _triggerTransfersRefresh(context);
+        _triggerTasksRefresh(context);
+      }
     } else if (event is TaskSharedEvent) {
       _showSnackBar(
         context,
@@ -53,6 +58,13 @@ class RealtimeNotificationListener extends StatelessWidget {
       );
       _triggerTasksRefresh(context);
     } else if (event is TaskUpdatedEvent) {
+      _showSnackBar(
+        context,
+        icon: Icons.sync,
+        color: Colors.teal.shade800,
+        title: 'Görev Güncellendi',
+        message: 'Paylaşılan bir görevde değişiklik yapıldı.',
+      );
       _triggerTasksRefresh(context);
     } else if (event is TransferRequestedEvent) {
       _showSnackBar(

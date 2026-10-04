@@ -208,6 +208,54 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
     hub.on('TransferRequested', handleTransferRequested);
     hub.on('TransferRequestCreated', handleTransferRequested);
     hub.on('TransferRequestReceived', handleTransferRequested);
+
+    // 5. Additional transfer lifecycle events (Accepted / Rejected / Cancelled)
+    void handleTransferStatusChanged(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received transfer status change: $args');
+      String msg = 'Devir isteği durumu güncellendi.';
+      if (args != null && args.isNotEmpty) {
+        if (args[0] is Map) {
+          msg = args[0]['message']?.toString() ??
+              args[0]['taskTitle']?.toString() ??
+              msg;
+        } else {
+          msg = args[0]?.toString() ?? msg;
+        }
+      }
+      _eventController.add(
+        ReceiveNotificationEvent(
+          title: 'Sahiplik Devri Bildirimi',
+          message: msg,
+        ),
+      );
+    }
+
+    hub.on('TransferAccepted', handleTransferStatusChanged);
+    hub.on('TransferRequestAccepted', handleTransferStatusChanged);
+    hub.on('TransferRejected', handleTransferStatusChanged);
+    hub.on('TransferRequestRejected', handleTransferStatusChanged);
+    hub.on('TransferCancelled', handleTransferStatusChanged);
+    hub.on('TransferRequestCancelled', handleTransferStatusChanged);
+
+    // 6. Additional task lifecycle events
+    void handleTaskLifeCycle(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received TaskLifeCycle: $args');
+      String taskId = '';
+      if (args != null && args.isNotEmpty) {
+        if (args[0] is Map) {
+          taskId = args[0]['taskId']?.toString() ??
+              args[0]['id']?.toString() ??
+              '';
+        } else {
+          taskId = args[0]?.toString() ?? '';
+        }
+      }
+      _eventController.add(TaskUpdatedEvent(taskId: taskId));
+    }
+
+    hub.on('TaskDeleted', handleTaskLifeCycle);
+    hub.on('TaskCompleted', handleTaskLifeCycle);
+    hub.on('TaskCreated', handleTaskLifeCycle);
   }
 
   void dispose() {
