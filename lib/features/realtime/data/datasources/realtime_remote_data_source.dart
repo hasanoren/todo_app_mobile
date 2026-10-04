@@ -27,6 +27,8 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
     this.hubUrl = ApiConstants.signalRHub,
   });
 
+  bool _isConnecting = false;
+
   @override
   Stream<RealtimeEvent> get eventStream => _eventController.stream;
 
@@ -39,12 +41,22 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
 
   @override
   Future<void> start() async {
-    if (isConnected) {
-      debugPrint('[SignalR] Already connected.');
+    if (_isConnecting ||
+        _hubConnection?.state == HubConnectionState.Connected ||
+        _hubConnection?.state == HubConnectionState.Connecting) {
+      debugPrint('[SignalR] Already connecting or connected. Ignoring duplicate start call.');
       return;
     }
 
+    _isConnecting = true;
     try {
+      if (_hubConnection != null) {
+        try {
+          await _hubConnection!.stop();
+        } catch (_) {}
+        _hubConnection = null;
+      }
+
       final token = await storageService.getAccessToken();
       if (token == null || token.isEmpty) {
         debugPrint('[SignalR] No access token found. Waiting for login.');
@@ -83,11 +95,14 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
       debugPrint('[SignalR] FAILED TO CONNECT: $e');
       debugPrint('[SignalR] Stack trace: $stack');
       _connectionStateController.add(false);
+    } finally {
+      _isConnecting = false;
     }
   }
 
   @override
   Future<void> stop() async {
+    _isConnecting = false;
     try {
       if (_hubConnection != null) {
         debugPrint('[SignalR] Stopping connection...');

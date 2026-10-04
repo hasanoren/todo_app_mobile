@@ -8,7 +8,6 @@ import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
-import 'features/auth/presentation/bloc/auth_state.dart';
 import 'core/router/app_router.dart';
 
 import 'features/auth/presentation/cubits/login_cubit.dart';
@@ -207,29 +206,20 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ],
-        child: BlocListener<AuthBloc, AuthState>(
-          listener: (context, authState) {
-            if (authState is Authenticated) {
-              context.read<RealtimeCubit>().startConnection();
-            } else if (authState is Unauthenticated) {
-              context.read<RealtimeCubit>().stopConnection();
-            }
-          },
-          child: MaterialApp.router(
-            title: 'Todo App',
-            scaffoldMessengerKey: scaffoldMessengerKey,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              useMaterial3: true,
-            ),
-            routerConfig: appRouter.router,
-            builder: (context, child) {
-              return RealtimeNotificationListener(
-                scaffoldMessengerKey: scaffoldMessengerKey,
-                child: child ?? const SizedBox.shrink(),
-              );
-            },
+        child: MaterialApp.router(
+          title: 'Todo App',
+          scaffoldMessengerKey: scaffoldMessengerKey,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
           ),
+          routerConfig: appRouter.router,
+          builder: (context, child) {
+            return RealtimeNotificationListener(
+              scaffoldMessengerKey: scaffoldMessengerKey,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         ),
       ),
     );

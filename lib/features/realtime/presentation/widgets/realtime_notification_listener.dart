@@ -7,7 +7,7 @@ import '../cubits/realtime_state.dart';
 import '../../../ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
 import '../../../tasks/presentation/cubits/tasks_cubit.dart';
 
-class RealtimeNotificationListener extends StatelessWidget {
+class RealtimeNotificationListener extends StatefulWidget {
   final Widget child;
   final GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
 
@@ -16,6 +16,16 @@ class RealtimeNotificationListener extends StatelessWidget {
     required this.child,
     this.scaffoldMessengerKey,
   });
+
+  @override
+  State<RealtimeNotificationListener> createState() =>
+      _RealtimeNotificationListenerState();
+}
+
+class _RealtimeNotificationListenerState
+    extends State<RealtimeNotificationListener> {
+  RealtimeEvent? _lastHandledEvent;
+  DateTime? _lastHandledTime;
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +37,20 @@ class RealtimeNotificationListener extends StatelessWidget {
         final event = state.lastEvent;
         if (event == null) return;
 
+        // Deduplication guard: ignore duplicate identical events received within 2 seconds
+        final now = DateTime.now();
+        if (_lastHandledEvent == event &&
+            _lastHandledTime != null &&
+            now.difference(_lastHandledTime!) < const Duration(seconds: 2)) {
+          debugPrint('[Realtime] Duplicate event suppressed: $event');
+          return;
+        }
+
+        _lastHandledEvent = event;
+        _lastHandledTime = now;
         _handleEvent(context, event);
       },
-      child: child,
+      child: widget.child,
     );
   }
 
@@ -102,13 +123,14 @@ class RealtimeNotificationListener extends StatelessWidget {
     required String title,
     required String message,
   }) {
-    final messenger = scaffoldMessengerKey?.currentState ??
+    final messenger = widget.scaffoldMessengerKey?.currentState ??
         ScaffoldMessenger.maybeOf(context);
     if (messenger == null) {
       debugPrint('[Realtime] Cannot display snackbar: No ScaffoldMessenger');
       return;
     }
 
+    messenger.removeCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
