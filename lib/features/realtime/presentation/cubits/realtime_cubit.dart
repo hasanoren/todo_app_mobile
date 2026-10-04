@@ -1,18 +1,24 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/models/realtime_event.dart';
 import '../../domain/repositories/realtime_repository.dart';
 import 'realtime_state.dart';
 
 class RealtimeCubit extends Cubit<RealtimeState> {
   final RealtimeRepository repository;
+  final AuthBloc? authBloc;
 
   StreamSubscription<RealtimeEvent>? _eventSubscription;
   StreamSubscription<bool>? _connectionSubscription;
+  StreamSubscription<AuthState>? _authSubscription;
 
-  RealtimeCubit({required this.repository})
-      : super(RealtimeState(isConnected: repository.isConnected)) {
+  RealtimeCubit({
+    required this.repository,
+    this.authBloc,
+  }) : super(RealtimeState(isConnected: repository.isConnected)) {
     _initSubscriptions();
   }
 
@@ -29,6 +35,20 @@ class RealtimeCubit extends Cubit<RealtimeState> {
         ),
       );
     });
+
+    if (authBloc != null) {
+      _authSubscription = authBloc!.stream.listen((authState) {
+        if (authState is Authenticated) {
+          startConnection();
+        } else if (authState is Unauthenticated) {
+          stopConnection();
+        }
+      });
+
+      if (authBloc!.state is Authenticated) {
+        startConnection();
+      }
+    }
   }
 
   @override
@@ -50,6 +70,7 @@ class RealtimeCubit extends Cubit<RealtimeState> {
   Future<void> close() {
     _eventSubscription?.cancel();
     _connectionSubscription?.cancel();
+    _authSubscription?.cancel();
     return super.close();
   }
 }

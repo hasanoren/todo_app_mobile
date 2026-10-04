@@ -9,8 +9,13 @@ import '../../../tasks/presentation/cubits/tasks_cubit.dart';
 
 class RealtimeNotificationListener extends StatelessWidget {
   final Widget child;
+  final GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
 
-  const RealtimeNotificationListener({super.key, required this.child});
+  const RealtimeNotificationListener({
+    super.key,
+    required this.child,
+    this.scaffoldMessengerKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +48,8 @@ class RealtimeNotificationListener extends StatelessWidget {
         icon: Icons.person_add_alt_1_outlined,
         color: Colors.indigo.shade800,
         title: 'Yeni Görev Paylaşıldı',
-        message: '"${event.taskTitle}" görevi sizinle paylaşıldı.',
+        message:
+            '"${event.taskTitle.isNotEmpty ? event.taskTitle : 'Yeni görev'}" sizinle paylaşıldı.',
       );
       _triggerTasksRefresh(context);
     } else if (event is TaskUpdatedEvent) {
@@ -55,7 +61,7 @@ class RealtimeNotificationListener extends StatelessWidget {
         color: Colors.deepPurple.shade800,
         title: 'Sahiplik Devir İsteği',
         message:
-            '"${event.taskTitle}" görevi için size devir isteği gönderildi.',
+            '"${event.taskTitle.isNotEmpty ? event.taskTitle : 'Görev'}" için size devir isteği gönderildi.',
       );
       _triggerTransfersRefresh(context);
     }
@@ -84,8 +90,12 @@ class RealtimeNotificationListener extends StatelessWidget {
     required String title,
     required String message,
   }) {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) return;
+    final messenger = scaffoldMessengerKey?.currentState ??
+        ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) {
+      debugPrint('[Realtime] Cannot display snackbar: No ScaffoldMessenger');
+      return;
+    }
 
     messenger.showSnackBar(
       SnackBar(
@@ -94,7 +104,7 @@ class RealtimeNotificationListener extends StatelessWidget {
         elevation: 6,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 5),
         content: Row(
           children: [
             Icon(icon, color: Colors.white, size: 22),

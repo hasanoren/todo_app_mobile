@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import '../../../../core/constants/api_constants.dart';
@@ -38,29 +39,49 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
 
   @override
   Future<void> start() async {
-    if (isConnected) return;
+    if (isConnected) {
+      debugPrint('[SignalR] Already connected.');
+      return;
+    }
 
     try {
-      if (_hubConnection == null) {
-        _hubConnection = HubConnectionBuilder()
-            .withUrl(
-              hubUrl,
-              options: HttpConnectionOptions(
-                accessTokenFactory: () async {
-                  final token = await storageService.getAccessToken();
-                  return token ?? '';
-                },
-              ),
-            )
-            .withAutomaticReconnect()
-            .build();
-
-        _registerHandlers();
+      final token = await storageService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        debugPrint('[SignalR] No access token found. Waiting for login.');
+        return;
       }
 
+      debugPrint('[SignalR] Connecting to $hubUrl (Token length: ${token.length})');
+
+      final uri = Uri.parse(hubUrl);
+      final hubUrlWithToken = uri.replace(
+        queryParameters: {
+          ...uri.queryParameters,
+          'access_token': token,
+        },
+      ).toString();
+
+      _hubConnection = HubConnectionBuilder()
+          .withUrl(
+            hubUrlWithToken,
+            options: HttpConnectionOptions(
+              accessTokenFactory: () async => token,
+              requestTimeout: 15000,
+            ),
+          )
+          .withAutomaticReconnect()
+          .build();
+
+      _registerHandlers();
+
       await _hubConnection!.start();
+      debugPrint(
+        '[SignalR] CONNECTED SUCCESSFULLY! State: ${_hubConnection?.state}',
+      );
       _connectionStateController.add(true);
-    } catch (_) {
+    } catch (e, stack) {
+      debugPrint('[SignalR] FAILED TO CONNECT: $e');
+      debugPrint('[SignalR] Stack trace: $stack');
       _connectionStateController.add(false);
     }
   }
@@ -69,10 +90,12 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
   Future<void> stop() async {
     try {
       if (_hubConnection != null) {
+        debugPrint('[SignalR] Stopping connection...');
         await _hubConnection!.stop();
+        _hubConnection = null;
       }
-    } catch (_) {
-      // Ignored
+    } catch (e) {
+      debugPrint('[SignalR] Error stopping: $e');
     } finally {
       _connectionStateController.add(false);
     }
@@ -83,57 +106,108 @@ class SignalRRemoteDataSourceImpl implements RealtimeRemoteDataSource {
     if (hub == null) return;
 
     hub.onclose(({error}) {
+      debugPrint('[SignalR] Connection closed. Error: $error');
       _connectionStateController.add(false);
     });
 
     hub.onreconnecting(({error}) {
+      debugPrint('[SignalR] Connection reconnecting... Error: $error');
       _connectionStateController.add(false);
     });
 
     hub.onreconnected(({connectionId}) {
+      debugPrint('[SignalR] Connection reconnected! Connection ID: $connectionId');
       _connectionStateController.add(true);
     });
 
-    // 1. ReceiveNotification(title, message)
-    hub.on('ReceiveNotification', (args) {
+    // 1. ReceiveNotification
+    void handleNotification(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received: ReceiveNotification $args');
       if (args != null && args.isNotEmpty) {
-        final title = args.isNotEmpty ? args[0]?.toString() ?? '' : '';
-        final message = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        String title = '';
+        String message = '';
+        if (args[0] is Map) {
+          final map = args[0] as Map;
+          title = map['title']?.toString() ?? 'Bildirim';
+          message = map['message']?.toString() ?? '';
+        } else {
+          title = args[0]?.toString() ?? 'Bildirim';
+          message = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        }
         _eventController.add(
           ReceiveNotificationEvent(title: title, message: message),
         );
       }
-    });
+    }
 
-    // 2. TaskShared(taskId, taskTitle)
-    hub.on('TaskShared', (args) {
+    hub.on('ReceiveNotification', handleNotification);
+    hub.on('Notification', handleNotification);
+
+    // 2. TaskShared
+    void handleTaskShared(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received: TaskShared $args');
       if (args != null && args.isNotEmpty) {
-        final taskId = args.isNotEmpty ? args[0]?.toString() ?? '' : '';
-        final taskTitle = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        String taskId = '';
+        String taskTitle = '';
+        if (args[0] is Map) {
+          final map = args[0] as Map;
+          taskId = map['taskId']?.toString() ?? map['id']?.toString() ?? '';
+          taskTitle =
+              map['taskTitle']?.toString() ?? map['title']?.toString() ?? '';
+        } else {
+          taskId = args[0]?.toString() ?? '';
+          taskTitle = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        }
         _eventController.add(
           TaskSharedEvent(taskId: taskId, taskTitle: taskTitle),
         );
       }
-    });
+    }
 
-    // 3. TaskUpdated(taskId)
-    hub.on('TaskUpdated', (args) {
+    hub.on('TaskShared', handleTaskShared);
+
+    // 3. TaskUpdated
+    void handleTaskUpdated(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received: TaskUpdated $args');
       if (args != null && args.isNotEmpty) {
-        final taskId = args.isNotEmpty ? args[0]?.toString() ?? '' : '';
+        String taskId = '';
+        if (args[0] is Map) {
+          final map = args[0] as Map;
+          taskId = map['taskId']?.toString() ?? map['id']?.toString() ?? '';
+        } else {
+          taskId = args[0]?.toString() ?? '';
+        }
         _eventController.add(TaskUpdatedEvent(taskId: taskId));
       }
-    });
+    }
 
-    // 4. TransferRequested(requestId, taskTitle)
-    hub.on('TransferRequested', (args) {
+    hub.on('TaskUpdated', handleTaskUpdated);
+
+    // 4. TransferRequested
+    void handleTransferRequested(List<dynamic>? args) {
+      debugPrint('[SignalR] Event received: TransferRequested $args');
       if (args != null && args.isNotEmpty) {
-        final requestId = args.isNotEmpty ? args[0]?.toString() ?? '' : '';
-        final taskTitle = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        String requestId = '';
+        String taskTitle = '';
+        if (args[0] is Map) {
+          final map = args[0] as Map;
+          requestId =
+              map['id']?.toString() ?? map['requestId']?.toString() ?? '';
+          taskTitle =
+              map['taskTitle']?.toString() ?? map['title']?.toString() ?? '';
+        } else {
+          requestId = args[0]?.toString() ?? '';
+          taskTitle = args.length > 1 ? args[1]?.toString() ?? '' : '';
+        }
         _eventController.add(
           TransferRequestedEvent(requestId: requestId, taskTitle: taskTitle),
         );
       }
-    });
+    }
+
+    hub.on('TransferRequested', handleTransferRequested);
+    hub.on('TransferRequestCreated', handleTransferRequested);
+    hub.on('TransferRequestReceived', handleTransferRequested);
   }
 
   void dispose() {

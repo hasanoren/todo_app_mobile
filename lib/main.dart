@@ -81,33 +81,39 @@ void main() async {
   );
 
   final subtasksRemoteDS = SubtasksRemoteDataSourceImpl(dio: dioClient.dio);
-  final subtasksRepo =
-      SubtasksRepositoryImpl(remoteDataSource: subtasksRemoteDS);
+  final subtasksRepo = SubtasksRepositoryImpl(
+    remoteDataSource: subtasksRemoteDS,
+  );
 
   final tagsRemoteDS = TagsRemoteDataSourceImpl(dio: dioClient.dio);
   final tagsRepo = TagsRepositoryImpl(remoteDataSource: tagsRemoteDS);
 
   final taskSharesRemoteDS = TaskSharesRemoteDataSourceImpl(dio: dioClient.dio);
-  final taskSharesRepo =
-      TaskSharesRepositoryImpl(remoteDataSource: taskSharesRemoteDS);
+  final taskSharesRepo = TaskSharesRepositoryImpl(
+    remoteDataSource: taskSharesRemoteDS,
+  );
 
-  final ownershipTransferRemoteDS =
-      OwnershipTransferRemoteDataSourceImpl(dio: dioClient.dio);
+  final ownershipTransferRemoteDS = OwnershipTransferRemoteDataSourceImpl(
+    dio: dioClient.dio,
+  );
   final ownershipTransferRepo = OwnershipTransferRepositoryImpl(
     remoteDataSource: ownershipTransferRemoteDS,
     storage: secureStorage,
   );
 
-  final taskActivitiesRemoteDS =
-      TaskActivitiesRemoteDataSourceImpl(dio: dioClient.dio);
-  final taskActivitiesRepo =
-      TaskActivitiesRepositoryImpl(remoteDataSource: taskActivitiesRemoteDS);
+  final taskActivitiesRemoteDS = TaskActivitiesRemoteDataSourceImpl(
+    dio: dioClient.dio,
+  );
+  final taskActivitiesRepo = TaskActivitiesRepositoryImpl(
+    remoteDataSource: taskActivitiesRemoteDS,
+  );
 
   final realtimeRemoteDS = SignalRRemoteDataSourceImpl(
     storageService: secureStorage,
   );
-  final realtimeRepo =
-      RealtimeRepositoryImpl(remoteDataSource: realtimeRemoteDS);
+  final realtimeRepo = RealtimeRepositoryImpl(
+    remoteDataSource: realtimeRemoteDS,
+  );
 
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
@@ -178,9 +184,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<TaskActivitiesRepository>.value(
           value: taskActivitiesRepo,
         ),
-        RepositoryProvider<RealtimeRepository>.value(
-          value: realtimeRepo,
-        ),
+        RepositoryProvider<RealtimeRepository>.value(value: realtimeRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -188,20 +192,19 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => LoginCubit(authRepo)),
           BlocProvider(create: (_) => RegisterCubit(authRepo)),
           BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
-          BlocProvider(create: (_) => SystemTagsCubit(tagsRepository: tagsRepo)),
           BlocProvider(
-            create: (_) => PendingTransfersCubit(
-              repository: ownershipTransferRepo,
-            )..loadPendingTransfers(),
+            create: (_) => SystemTagsCubit(tagsRepository: tagsRepo),
           ),
           BlocProvider(
-            create: (context) {
-              final cubit = RealtimeCubit(repository: realtimeRepo);
-              if (authBloc.state is Authenticated) {
-                cubit.startConnection();
-              }
-              return cubit;
-            },
+            create: (_) =>
+                PendingTransfersCubit(repository: ownershipTransferRepo)
+                  ..loadPendingTransfers(),
+          ),
+          BlocProvider(
+            create: (context) => RealtimeCubit(
+              repository: realtimeRepo,
+              authBloc: authBloc,
+            ),
           ),
         ],
         child: BlocListener<AuthBloc, AuthState>(
@@ -222,6 +225,7 @@ class MyApp extends StatelessWidget {
             routerConfig: appRouter.router,
             builder: (context, child) {
               return RealtimeNotificationListener(
+                scaffoldMessengerKey: scaffoldMessengerKey,
                 child: child ?? const SizedBox.shrink(),
               );
             },
@@ -231,4 +235,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
