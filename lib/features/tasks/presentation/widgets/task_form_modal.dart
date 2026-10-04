@@ -265,10 +265,6 @@ class _TaskFormModalState extends State<TaskFormModal> {
                         value: TaskPriority.high,
                         label: Text('Yüksek', style: TextStyle(fontSize: 12)),
                       ),
-                      ButtonSegment(
-                        value: TaskPriority.urgent,
-                        label: Text('Acil', style: TextStyle(fontSize: 12)),
-                      ),
                     ],
                     selected: {state.priority},
                     onSelectionChanged: (newSelection) {

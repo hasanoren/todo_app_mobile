@@ -24,8 +24,12 @@ class MockTodoItemsRepository implements TodoItemsRepository {
     if (shouldThrow) throw Exception('API Error');
     final filtered = filter.search != null && filter.search!.isNotEmpty
         ? mockItems
-            .where((i) => i.title.toLowerCase().contains(filter.search!.toLowerCase()))
-            .toList()
+              .where(
+                (i) => i.title.toLowerCase().contains(
+                  filter.search!.toLowerCase(),
+                ),
+              )
+              .toList()
         : mockItems;
 
     return PaginatedResponseDto(
@@ -135,7 +139,7 @@ void main() {
         'description': 'Açıklama',
         'dueDate': '2026-10-01T12:00:00Z',
         'status': 'Open',
-        'priority': 'Urgent',
+        'priority': 'High',
         'ownerId': 'owner-uuid',
         'isOwner': true,
         'createdAt': '2026-09-01T10:00:00Z',
@@ -147,10 +151,10 @@ void main() {
             'title': 'Alt Adım 1',
             'status': 'Completed',
             'createdAt': '2026-09-01T10:00:00Z',
-          }
+          },
         ],
         'tags': [
-          {'id': 'tag-1', 'name': 'Acil', 'createdAt': '2026-09-01T10:00:00Z'}
+          {'id': 'tag-1', 'name': 'Acil', 'createdAt': '2026-09-01T10:00:00Z'},
         ],
         'sharedWith': [],
       };
@@ -158,13 +162,46 @@ void main() {
       final dto = TodoItemResponseDto.fromJson(json);
       expect(dto.id, 'test-uuid');
       expect(dto.title, 'Test Görevi');
-      expect(dto.taskPriority, TaskPriority.urgent);
+      expect(dto.taskPriority, TaskPriority.high);
       expect(dto.taskStatus, TaskStatus.open);
       expect(dto.isCompleted, false);
       expect(dto.subTasks.length, 1);
       expect(dto.subTasks.first.isCompleted, true);
       expect(dto.tags.length, 1);
       expect(dto.tags.first.name, 'Acil');
+    });
+
+    test('TaskPriority correctly maps backend values and strings', () {
+      expect(TaskPriority.fromServer(1), TaskPriority.low);
+      expect(TaskPriority.fromServer(2), TaskPriority.medium);
+      expect(TaskPriority.fromServer(3), TaskPriority.high);
+      expect(TaskPriority.fromServer('Low'), TaskPriority.low);
+      expect(TaskPriority.fromServer('Medium'), TaskPriority.medium);
+      expect(TaskPriority.fromServer('High'), TaskPriority.high);
+      // Legacy or boundary values fallback safely
+      expect(TaskPriority.fromServer(0), TaskPriority.low);
+      expect(TaskPriority.fromServer(4), TaskPriority.high);
+      expect(TaskPriority.fromServer('Urgent'), TaskPriority.high);
+      expect(TaskPriority.fromServer(null), TaskPriority.medium);
+    });
+
+    test('TodoItemFilterDto correctly handles priority updates and clearing', () {
+      final initial = const TodoItemFilterDto();
+      expect(initial.priority, null);
+
+      final withLow = initial.copyWith(priority: TaskPriority.low.value);
+      expect(withLow.priority, 1);
+      expect(withLow.toQueryParams()['priority'], 1);
+
+      // Switching directly to High overrides Low without conflict
+      final withHigh = withLow.copyWith(priority: TaskPriority.high.value);
+      expect(withHigh.priority, 3);
+      expect(withHigh.toQueryParams()['priority'], 3);
+
+      // Clearing priority sets it to null
+      final cleared = withHigh.copyWith(clearPriority: true);
+      expect(cleared.priority, null);
+      expect(cleared.toQueryParams().containsKey('priority'), false);
     });
   });
 
@@ -270,4 +307,3 @@ void main() {
     });
   });
 }
-

@@ -43,10 +43,10 @@ class SubtasksState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        items,
-        isAdding,
-        togglingId,
-        errorMessage,
-      ];
+    status,
+    items,
+    isAdding,
+    togglingId,
+    errorMessage,
+  ];
 }

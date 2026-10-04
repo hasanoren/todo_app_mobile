@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/entities/todo_item_enums.dart';
 
 class SubTaskItemDto extends Equatable {
@@ -156,7 +157,7 @@ class TodoItemResponseDto extends Equatable {
           : null,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())?.toLocal() ??
-              DateTime.now()
+                DateTime.now()
           : DateTime.now(),
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'].toString())?.toLocal()
@@ -165,16 +166,21 @@ class TodoItemResponseDto extends Equatable {
       deletedAt: json['deletedAt'] != null
           ? DateTime.tryParse(json['deletedAt'].toString())?.toLocal()
           : null,
-      subTasks: (json['subTasks'] as List<dynamic>?)
+      subTasks:
+          (json['subTasks'] as List<dynamic>?)
               ?.map((e) => SubTaskItemDto.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      tags: (json['tags'] as List<dynamic>?)
+      tags:
+          (json['tags'] as List<dynamic>?)
               ?.map((e) => TagItemDto.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      sharedWith: (json['sharedWith'] as List<dynamic>?)
-              ?.map((e) => SharedUserItemDto.fromJson(e as Map<String, dynamic>))
+      sharedWith:
+          (json['sharedWith'] as List<dynamic>?)
+              ?.map(
+                (e) => SharedUserItemDto.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           const [],
     );
@@ -224,24 +230,23 @@ class TodoItemResponseDto extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        description,
-        dueDate,
-        status,
-        priority,
-        todoListId,
-        ownerId,
-        isOwner,
-        completedByUserId,
-        completedAt,
-        createdAt,
-        updatedAt,
-        isDeleted,
-        deletedAt,
-        subTasks,
-        tags,
-        sharedWith,
-      ];
+    id,
+    title,
+    description,
+    dueDate,
+    status,
+    priority,
+    todoListId,
+    ownerId,
+    isOwner,
+    completedByUserId,
+    completedAt,
+    createdAt,
+    updatedAt,
+    isDeleted,
+    deletedAt,
+    subTasks,
+    tags,
+    sharedWith,
+  ];
 }
-

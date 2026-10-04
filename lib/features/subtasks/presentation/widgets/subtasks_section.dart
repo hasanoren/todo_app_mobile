@@ -33,10 +33,7 @@ class SubtasksSection extends StatelessWidget {
         }
         return cubit;
       },
-      child: _SubtasksSectionContent(
-        taskId: taskId,
-        isOwner: isOwner,
-      ),
+      child: _SubtasksSectionContent(taskId: taskId, isOwner: isOwner),
     );
   }
 }
@@ -45,10 +42,7 @@ class _SubtasksSectionContent extends StatefulWidget {
   final String taskId;
   final bool isOwner;
 
-  const _SubtasksSectionContent({
-    required this.taskId,
-    required this.isOwner,
-  });
+  const _SubtasksSectionContent({required this.taskId, required this.isOwner});
 
   @override
   State<_SubtasksSectionContent> createState() =>
@@ -211,9 +205,9 @@ class _SubtasksSectionContentState extends State<_SubtasksSectionContent> {
                       isOwner: widget.isOwner,
                       isToggling: state.togglingId == subtask.id,
                       onToggle: () {
-                        context
-                            .read<SubtasksCubit>()
-                            .toggleComplete(subtask.id);
+                        context.read<SubtasksCubit>().toggleComplete(
+                          subtask.id,
+                        );
                       },
                       onDelete: () => _confirmDelete(subtask),
                     ),
@@ -239,13 +233,11 @@ class _SubtasksSectionContentState extends State<_SubtasksSectionContent> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
                       ),

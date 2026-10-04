@@ -28,7 +28,7 @@ class SubtaskResponseDto extends Equatable {
       status: json['status']?.toString() ?? 'Open',
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())?.toLocal() ??
-              DateTime.now()
+                DateTime.now()
           : DateTime.now(),
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'].toString())?.toLocal()

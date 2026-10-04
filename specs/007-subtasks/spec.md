@@ -105,3 +105,4 @@ Tap the delete icon next to a subtask as the owner; confirm in dialog; verify `D
 - **SC-001**: Subtask checklist loads seamlessly within task detail screen.
 - **SC-002**: Adding and toggling subtasks takes under 1 second with responsive UI.
 - **SC-003**: Zero analyzer issues and 100% passing tests.
+

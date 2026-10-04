@@ -19,29 +19,32 @@ class TasksCubit extends Cubit<TasksState> {
       page: resetPage ? 1 : state.filter.page,
     );
 
-    emit(state.copyWith(
-      status: TasksStatus.loading,
-      filter: activeFilter,
-      errorMessage: null,
-    ));
+    emit(
+      state.copyWith(
+        status: TasksStatus.loading,
+        filter: activeFilter,
+        errorMessage: null,
+      ),
+    );
 
     try {
       final response = await repository.getTodoItems(activeFilter);
-      emit(state.copyWith(
-        status: TasksStatus.success,
-        items: response.items,
-        hasNextPage: response.hasNextPage,
-      ));
+      emit(
+        state.copyWith(
+          status: TasksStatus.success,
+          items: response.items,
+          hasNextPage: response.hasNextPage,
+        ),
+      );
     } on Failure catch (f) {
-      emit(state.copyWith(
-        status: TasksStatus.error,
-        errorMessage: f.message,
-      ));
+      emit(state.copyWith(status: TasksStatus.error, errorMessage: f.message));
     } catch (_) {
-      emit(state.copyWith(
-        status: TasksStatus.error,
-        errorMessage: 'Görevler yüklenirken beklenmedik bir hata oluştu.',
-      ));
+      emit(
+        state.copyWith(
+          status: TasksStatus.error,
+          errorMessage: 'Görevler yüklenirken beklenmedik bir hata oluştu.',
+        ),
+      );
     }
   }
 
@@ -49,55 +52,58 @@ class TasksCubit extends Cubit<TasksState> {
     final refreshFilter = state.filter.copyWith(page: 1);
     try {
       final response = await repository.getTodoItems(refreshFilter);
-      emit(state.copyWith(
-        status: TasksStatus.success,
-        filter: refreshFilter,
-        items: response.items,
-        hasNextPage: response.hasNextPage,
-        errorMessage: null,
-      ));
+      emit(
+        state.copyWith(
+          status: TasksStatus.success,
+          filter: refreshFilter,
+          items: response.items,
+          hasNextPage: response.hasNextPage,
+          errorMessage: null,
+        ),
+      );
     } on Failure catch (f) {
-      emit(state.copyWith(
-        errorMessage: f.message,
-      ));
+      emit(state.copyWith(errorMessage: f.message));
     } catch (_) {
-      emit(state.copyWith(
-        errorMessage: 'Yenileme sırasında bir hata oluştu.',
-      ));
+      emit(state.copyWith(errorMessage: 'Yenileme sırasında bir hata oluştu.'));
     }
   }
 
   Future<void> loadNextPage() async {
-    if (state.isLoadingMore || !state.hasNextPage || state.status == TasksStatus.loading) {
+    if (state.isLoadingMore ||
+        !state.hasNextPage ||
+        state.status == TasksStatus.loading) {
       return;
     }
 
     final nextPage = state.filter.page + 1;
     final nextFilter = state.filter.copyWith(page: nextPage);
 
-    emit(state.copyWith(
-      isLoadingMore: true,
-      filter: nextFilter,
-      errorMessage: null,
-    ));
+    emit(
+      state.copyWith(
+        isLoadingMore: true,
+        filter: nextFilter,
+        errorMessage: null,
+      ),
+    );
 
     try {
       final response = await repository.getTodoItems(nextFilter);
-      emit(state.copyWith(
-        isLoadingMore: false,
-        items: [...state.items, ...response.items],
-        hasNextPage: response.hasNextPage,
-      ));
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          items: [...state.items, ...response.items],
+          hasNextPage: response.hasNextPage,
+        ),
+      );
     } on Failure catch (f) {
-      emit(state.copyWith(
-        isLoadingMore: false,
-        errorMessage: f.message,
-      ));
+      emit(state.copyWith(isLoadingMore: false, errorMessage: f.message));
     } catch (_) {
-      emit(state.copyWith(
-        isLoadingMore: false,
-        errorMessage: 'Daha fazla görev yüklenemedi.',
-      ));
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          errorMessage: 'Daha fazla görev yüklenemedi.',
+        ),
+      );
     }
   }
 
@@ -139,20 +145,19 @@ class TasksCubit extends Cubit<TasksState> {
       if (revertIdx != -1) {
         final revertedList = List<TodoItemResponseDto>.from(state.items);
         revertedList[revertIdx] = originalItem;
-        emit(state.copyWith(
-          items: revertedList,
-          errorMessage: f.message,
-        ));
+        emit(state.copyWith(items: revertedList, errorMessage: f.message));
       }
     } catch (_) {
       final revertIdx = state.items.indexWhere((item) => item.id == id);
       if (revertIdx != -1) {
         final revertedList = List<TodoItemResponseDto>.from(state.items);
         revertedList[revertIdx] = originalItem;
-        emit(state.copyWith(
-          items: revertedList,
-          errorMessage: 'Görev durumu güncellenemedi.',
-        ));
+        emit(
+          state.copyWith(
+            items: revertedList,
+            errorMessage: 'Görev durumu güncellenemedi.',
+          ),
+        );
       }
     }
   }

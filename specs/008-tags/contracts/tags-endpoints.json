@@ -1,0 +1,82 @@
+{
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/tags",
+      "auth": true,
+      "description": "Get all system tags",
+      "response": {
+        "items": [
+          {
+            "id": "uuid",
+            "name": "Frontend",
+            "createdAt": "2026-03-01T12:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/tags",
+      "auth": true,
+      "roles": [
+        "Admin"
+      ],
+      "description": "Create a new tag (admin only)",
+      "request": {
+        "name": "Backend"
+      },
+      "response": {
+        "id": "uuid",
+        "name": "Backend",
+        "createdAt": "2026-03-01T12:00:00Z"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/tags/{tagId}/todoitems",
+      "auth": true,
+      "description": "Paginated tasks with this tag",
+      "queryParams": {
+        "page": 1,
+        "pageSize": 20
+      },
+      "response": {
+        "items": [],
+        "page": 1,
+        "pageSize": 20,
+        "totalCount": 0,
+        "totalPages": 0,
+        "hasNextPage": false,
+        "hasPreviousPage": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/todoitems/{taskId}/tags",
+      "auth": true,
+      "description": "Get tags attached to a task",
+      "response": {
+        "items": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/todoitems/{taskId}/tags/{tagId}",
+      "auth": true,
+      "ownerOnly": true,
+      "description": "Attach tag to task (idempotent)",
+      "response": {
+        "message": "Tag successfully attached."
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/todoitems/{taskId}/tags/{tagId}",
+      "auth": true,
+      "ownerOnly": true,
+      "description": "Detach tag from task",
+      "status": 204
+    }
+  ]
+}

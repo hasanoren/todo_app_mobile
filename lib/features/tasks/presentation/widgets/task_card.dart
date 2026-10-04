@@ -68,11 +68,7 @@ class TaskCard extends StatelessWidget {
                       ),
                     ),
                     child: isCompleted
-                        ? const Icon(
-                            Icons.check,
-                            size: 16,
-                            color: Colors.white,
-                          )
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -87,8 +83,9 @@ class TaskCard extends StatelessWidget {
                       task.title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        decoration:
-                            isCompleted ? TextDecoration.lineThrough : null,
+                        decoration: isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
                         color: isCompleted
                             ? Colors.grey.shade500
                             : theme.textTheme.titleMedium?.color,
@@ -247,4 +244,3 @@ class TaskCard extends StatelessWidget {
     );
   }
 }
-

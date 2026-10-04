@@ -81,11 +81,7 @@ class SubtaskItemTile extends StatelessWidget {
           // Delete button (owner only)
           if (isOwner && onDelete != null)
             IconButton(
-              icon: Icon(
-                Icons.close,
-                size: 18,
-                color: Colors.grey.shade500,
-              ),
+              icon: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
               visualDensity: VisualDensity.compact,
               tooltip: 'Alt görevi sil',
               onPressed: onDelete,

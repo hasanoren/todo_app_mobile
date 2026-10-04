@@ -20,3 +20,4 @@
 - Tap the delete icon (trash) next to the subtask.
 - Confirm deletion in the dialog.
 - Verify the subtask is removed from the list.
+

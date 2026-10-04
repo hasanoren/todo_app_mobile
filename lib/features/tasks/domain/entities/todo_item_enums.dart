@@ -1,8 +1,7 @@
 enum TaskPriority {
-  low(0, 'Low', 'Düşük'),
-  medium(1, 'Medium', 'Orta'),
-  high(2, 'High', 'Yüksek'),
-  urgent(3, 'Urgent', 'Acil');
+  low(1, 'Low', 'Düşük'),
+  medium(2, 'Medium', 'Orta'),
+  high(3, 'High', 'Yüksek');
 
   final int value;
   final String apiName;
@@ -13,24 +12,24 @@ enum TaskPriority {
   static TaskPriority fromServer(dynamic raw) {
     if (raw == null) return TaskPriority.medium;
     if (raw is int) {
-      return TaskPriority.values.firstWhere(
-        (p) => p.value == raw,
-        orElse: () => TaskPriority.medium,
-      );
+      if (raw <= 1) return TaskPriority.low;
+      if (raw == 2) return TaskPriority.medium;
+      return TaskPriority.high;
     }
     final str = raw.toString().trim().toLowerCase();
     switch (str) {
       case 'low':
+      case '1':
       case '0':
         return TaskPriority.low;
-      case 'high':
-      case '2':
-        return TaskPriority.high;
-      case 'urgent':
-      case '3':
-        return TaskPriority.urgent;
       case 'medium':
-      case '1':
+      case '2':
+        return TaskPriority.medium;
+      case 'high':
+      case '3':
+      case 'urgent':
+      case '4':
+        return TaskPriority.high;
       default:
         return TaskPriority.medium;
     }
@@ -106,4 +105,3 @@ enum SortOrder {
 
   const SortOrder(this.apiValue, this.displayName);
 }
-

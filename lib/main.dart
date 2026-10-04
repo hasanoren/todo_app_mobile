@@ -22,6 +22,10 @@ import 'features/tasks/domain/repositories/todo_items_repository.dart';
 import 'features/subtasks/data/datasources/subtasks_remote_data_source.dart';
 import 'features/subtasks/data/repositories/subtasks_repository_impl.dart';
 import 'features/subtasks/domain/repositories/subtasks_repository.dart';
+import 'features/tags/data/datasources/tags_remote_data_source.dart';
+import 'features/tags/data/repositories/tags_repository_impl.dart';
+import 'features/tags/domain/repositories/tags_repository.dart';
+import 'features/tags/presentation/cubits/system_tags_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,22 +55,26 @@ void main() async {
   final authRepo = AuthRepositoryImpl(authRemoteDS, secureStorage);
 
   final todoListsRemoteDS = TodoListsRemoteDataSourceImpl(dio: dioClient.dio);
-  final todoListsRepo =
-      TodoListsRepositoryImpl(remoteDataSource: todoListsRemoteDS);
+  final todoListsRepo = TodoListsRepositoryImpl(
+    remoteDataSource: todoListsRemoteDS,
+  );
 
   final todoItemsRemoteDS = TodoItemsRemoteDataSourceImpl(dio: dioClient.dio);
-  final todoItemsRepo =
-      TodoItemsRepositoryImpl(remoteDataSource: todoItemsRemoteDS);
+  final todoItemsRepo = TodoItemsRepositoryImpl(
+    remoteDataSource: todoItemsRemoteDS,
+  );
 
   final subtasksRemoteDS = SubtasksRemoteDataSourceImpl(dio: dioClient.dio);
   final subtasksRepo =
       SubtasksRepositoryImpl(remoteDataSource: subtasksRemoteDS);
 
+  final tagsRemoteDS = TagsRemoteDataSourceImpl(dio: dioClient.dio);
+  final tagsRepo = TagsRepositoryImpl(remoteDataSource: tagsRemoteDS);
+
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
 
-  final appRouter =
-      AppRouter(authBloc, authRepo, todoListsRepo, todoItemsRepo);
+  final appRouter = AppRouter(authBloc, authRepo, todoListsRepo, todoItemsRepo);
 
   runApp(
     MyApp(
@@ -76,6 +84,7 @@ void main() async {
       todoListsRepo: todoListsRepo,
       todoItemsRepo: todoItemsRepo,
       subtasksRepo: subtasksRepo,
+      tagsRepo: tagsRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -88,6 +97,7 @@ class MyApp extends StatelessWidget {
   final TodoListsRepository todoListsRepo;
   final TodoItemsRepository todoItemsRepo;
   final SubtasksRepository subtasksRepo;
+  final TagsRepository tagsRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -98,6 +108,7 @@ class MyApp extends StatelessWidget {
     required this.todoListsRepo,
     required this.todoItemsRepo,
     required this.subtasksRepo,
+    required this.tagsRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -109,6 +120,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<TodoListsRepository>.value(value: todoListsRepo),
         RepositoryProvider<TodoItemsRepository>.value(value: todoItemsRepo),
         RepositoryProvider<SubtasksRepository>.value(value: subtasksRepo),
+        RepositoryProvider<TagsRepository>.value(value: tagsRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -116,6 +128,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => LoginCubit(authRepo)),
           BlocProvider(create: (_) => RegisterCubit(authRepo)),
           BlocProvider(create: (_) => TwoFactorCubit(authRepo)),
+          BlocProvider(create: (_) => SystemTagsCubit(tagsRepository: tagsRepo)),
         ],
         child: MaterialApp.router(
           title: 'Todo App',

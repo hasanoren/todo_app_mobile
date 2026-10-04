@@ -26,10 +26,7 @@ class TodoListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: listColor.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        side: BorderSide(color: listColor.withValues(alpha: 0.3), width: 1.5),
       ),
       child: InkWell(
         onTap: onTap,
@@ -63,18 +60,16 @@ class TodoListCard extends StatelessWidget {
                   children: [
                     Text(
                       list.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       _formatDate(list.updatedAt ?? list.createdAt),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: Colors.grey.shade600),
                     ),
                   ],
                 ),
@@ -112,4 +107,3 @@ class TodoListCard extends StatelessWidget {
     return '$day.$month.$year $hour:$minute';
   }
 }
-

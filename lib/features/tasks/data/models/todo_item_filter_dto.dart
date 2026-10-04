@@ -82,10 +82,8 @@ class TodoItemFilterDto extends Equatable {
       search: clearSearch ? null : (search ?? this.search),
       status: clearStatus ? null : (status ?? this.status),
       priority: clearPriority ? null : (priority ?? this.priority),
-      todoListId:
-          clearTodoListId ? null : (todoListId ?? this.todoListId),
-      dueDateFrom:
-          clearDueDateFrom ? null : (dueDateFrom ?? this.dueDateFrom),
+      todoListId: clearTodoListId ? null : (todoListId ?? this.todoListId),
+      dueDateFrom: clearDueDateFrom ? null : (dueDateFrom ?? this.dueDateFrom),
       dueDateTo: clearDueDateTo ? null : (dueDateTo ?? this.dueDateTo),
       sortBy: sortBy ?? this.sortBy,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -96,17 +94,16 @@ class TodoItemFilterDto extends Equatable {
 
   @override
   List<Object?> get props => [
-        filterType,
-        search,
-        status,
-        priority,
-        todoListId,
-        dueDateFrom,
-        dueDateTo,
-        sortBy,
-        sortOrder,
-        page,
-        pageSize,
-      ];
+    filterType,
+    search,
+    status,
+    priority,
+    todoListId,
+    dueDateFrom,
+    dueDateTo,
+    sortBy,
+    sortOrder,
+    page,
+    pageSize,
+  ];
 }
-

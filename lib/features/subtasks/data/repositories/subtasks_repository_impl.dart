@@ -44,9 +44,7 @@ class SubtasksRepositoryImpl implements SubtasksRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Alt görev durumu değiştirilemedi.',
-      );
+      throw const NetworkFailure(message: 'Alt görev durumu değiştirilemedi.');
     }
   }
 
@@ -57,9 +55,7 @@ class SubtasksRepositoryImpl implements SubtasksRepository {
     } on ApiException catch (e) {
       throw ServerFailure(message: e.detail, validationErrors: e.errors);
     } catch (_) {
-      throw const NetworkFailure(
-        message: 'Alt görev silinemedi.',
-      );
+      throw const NetworkFailure(message: 'Alt görev silinemedi.');
     }
   }
 }
