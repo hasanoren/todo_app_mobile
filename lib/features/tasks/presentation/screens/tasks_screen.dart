@@ -15,6 +15,9 @@ import '../widgets/task_form_modal.dart';
 import '../../../ownership_transfer/presentation/cubits/pending_transfers_cubit.dart';
 import '../../../ownership_transfer/presentation/cubits/pending_transfers_state.dart';
 import '../../../task_shares/domain/repositories/task_shares_repository.dart';
+import '../../../realtime/domain/models/realtime_event.dart';
+import '../../../realtime/presentation/cubits/realtime_cubit.dart';
+import '../../../realtime/presentation/cubits/realtime_state.dart';
 
 class TasksScreen extends StatefulWidget {
   final String? initialTodoListId;
@@ -216,7 +219,17 @@ class _TasksScreenState extends State<TasksScreen> {
     final theme = Theme.of(context);
     final title = widget.todoListName ?? 'Tüm Görevler';
 
-    return BlocConsumer<TasksCubit, TasksState>(
+    return BlocListener<RealtimeCubit, RealtimeState>(
+      listenWhen: (previous, current) =>
+          current.lastEvent != null &&
+          current.lastEventTime != previous.lastEventTime,
+      listener: (context, realtimeState) {
+        final event = realtimeState.lastEvent;
+        if (event is TaskSharedEvent || event is TaskUpdatedEvent) {
+          context.read<TasksCubit>().refreshTasks();
+        }
+      },
+      child: BlocConsumer<TasksCubit, TasksState>(
       listener: (context, state) {
         if (state.errorMessage != null &&
             state.status != TasksStatus.loading &&
@@ -596,6 +609,7 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 }

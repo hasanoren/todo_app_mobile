@@ -64,6 +64,9 @@ class ApiConstants {
   static String taskActivities(String taskId) =>
       '/api/TodoItems/$taskId/activities';
 
+  // Real-Time SignalR Hub
+  static const String signalRHub = '$baseUrl/hubs/todo';
+
   static const int connectTimeout = 10000;
   static const int receiveTimeout = 10000;
 }

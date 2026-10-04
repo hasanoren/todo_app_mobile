@@ -8,6 +8,7 @@ import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
+import 'features/auth/presentation/bloc/auth_state.dart';
 import 'core/router/app_router.dart';
 
 import 'features/auth/presentation/cubits/login_cubit.dart';
@@ -36,6 +37,11 @@ import 'features/ownership_transfer/presentation/cubits/pending_transfers_cubit.
 import 'features/task_activities/data/datasources/task_activities_remote_data_source.dart';
 import 'features/task_activities/data/repositories/task_activities_repository_impl.dart';
 import 'features/task_activities/domain/repositories/task_activities_repository.dart';
+import 'features/realtime/data/datasources/realtime_remote_data_source.dart';
+import 'features/realtime/data/repositories/realtime_repository_impl.dart';
+import 'features/realtime/domain/repositories/realtime_repository.dart';
+import 'features/realtime/presentation/cubits/realtime_cubit.dart';
+import 'features/realtime/presentation/widgets/realtime_notification_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,6 +103,12 @@ void main() async {
   final taskActivitiesRepo =
       TaskActivitiesRepositoryImpl(remoteDataSource: taskActivitiesRemoteDS);
 
+  final realtimeRemoteDS = SignalRRemoteDataSourceImpl(
+    storageService: secureStorage,
+  );
+  final realtimeRepo =
+      RealtimeRepositoryImpl(remoteDataSource: realtimeRemoteDS);
+
   authBloc = AuthBloc(authRepository: authRepo);
   authBloc.add(AppStarted());
 
@@ -114,6 +126,7 @@ void main() async {
       taskSharesRepo: taskSharesRepo,
       ownershipTransferRepo: ownershipTransferRepo,
       taskActivitiesRepo: taskActivitiesRepo,
+      realtimeRepo: realtimeRepo,
       scaffoldMessengerKey: scaffoldMessengerKey,
     ),
   );
@@ -130,6 +143,7 @@ class MyApp extends StatelessWidget {
   final TaskSharesRepository taskSharesRepo;
   final OwnershipTransferRepository ownershipTransferRepo;
   final TaskActivitiesRepository taskActivitiesRepo;
+  final RealtimeRepository realtimeRepo;
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
 
   const MyApp({
@@ -144,6 +158,7 @@ class MyApp extends StatelessWidget {
     required this.taskSharesRepo,
     required this.ownershipTransferRepo,
     required this.taskActivitiesRepo,
+    required this.realtimeRepo,
     required this.scaffoldMessengerKey,
   });
 
@@ -163,6 +178,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<TaskActivitiesRepository>.value(
           value: taskActivitiesRepo,
         ),
+        RepositoryProvider<RealtimeRepository>.value(
+          value: realtimeRepo,
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -176,15 +194,38 @@ class MyApp extends StatelessWidget {
               repository: ownershipTransferRepo,
             )..loadPendingTransfers(),
           ),
-        ],
-        child: MaterialApp.router(
-          title: 'Todo App',
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
+          BlocProvider(
+            create: (context) {
+              final cubit = RealtimeCubit(repository: realtimeRepo);
+              if (authBloc.state is Authenticated) {
+                cubit.startConnection();
+              }
+              return cubit;
+            },
           ),
-          routerConfig: appRouter.router,
+        ],
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, authState) {
+            if (authState is Authenticated) {
+              context.read<RealtimeCubit>().startConnection();
+            } else if (authState is Unauthenticated) {
+              context.read<RealtimeCubit>().stopConnection();
+            }
+          },
+          child: MaterialApp.router(
+            title: 'Todo App',
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            routerConfig: appRouter.router,
+            builder: (context, child) {
+              return RealtimeNotificationListener(
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
+          ),
         ),
       ),
     );

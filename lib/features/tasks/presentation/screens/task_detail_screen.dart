@@ -20,6 +20,9 @@ import '../../../ownership_transfer/data/models/transfer_request_response_dto.da
 import '../../../ownership_transfer/domain/repositories/ownership_transfer_repository.dart';
 import '../../../ownership_transfer/presentation/widgets/transfer_ownership_dialog.dart';
 import '../../../task_activities/presentation/widgets/task_activities_section.dart';
+import '../../../realtime/domain/models/realtime_event.dart';
+import '../../../realtime/presentation/cubits/realtime_cubit.dart';
+import '../../../realtime/presentation/cubits/realtime_state.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -276,7 +279,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocConsumer<TaskDetailCubit, TaskDetailState>(
+    return BlocListener<RealtimeCubit, RealtimeState>(
+      listenWhen: (previous, current) =>
+          current.lastEvent != null &&
+          current.lastEventTime != previous.lastEventTime,
+      listener: (context, realtimeState) {
+        final event = realtimeState.lastEvent;
+        if (event is TaskUpdatedEvent && event.taskId == widget.taskId) {
+          context.read<TaskDetailCubit>().loadTask(widget.taskId);
+        }
+      },
+      child: BlocConsumer<TaskDetailCubit, TaskDetailState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -697,8 +710,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildMetaRow(
     BuildContext context, {
